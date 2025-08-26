@@ -20,7 +20,7 @@ LDFLAGS = -ffreestanding -O2 -nostdlib
 
 # Source files
 ASM_SOURCES = boot.s
-C_SOURCES = kernel.c
+C_SOURCES = kernel.c klog.c
 SOURCES = $(ASM_SOURCES) $(C_SOURCES)
 
 # Object files

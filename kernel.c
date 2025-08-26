@@ -1,32 +1,13 @@
 #include <stddef.h>
 #include <stdint.h>
+#include "vga.h"
+#include "klog.h"
 
-/* Hardware text mode color constants */
-enum vga_color {
-    VGA_COLOR_BLACK = 0,
-    VGA_COLOR_BLUE = 1,
-    VGA_COLOR_GREEN = 2,
-    VGA_COLOR_CYAN = 3,
-    VGA_COLOR_RED = 4,
-    VGA_COLOR_MAGENTA = 5,
-    VGA_COLOR_BROWN = 6,
-    VGA_COLOR_LIGHT_GREY = 7,
-    VGA_COLOR_DARK_GREY = 8,
-    VGA_COLOR_LIGHT_BLUE = 9,
-    VGA_COLOR_LIGHT_GREEN = 10,
-    VGA_COLOR_LIGHT_CYAN = 11,
-    VGA_COLOR_LIGHT_RED = 12,
-    VGA_COLOR_LIGHT_MAGENTA = 13,
-    VGA_COLOR_LIGHT_BROWN = 14,
-    VGA_COLOR_YELLOW = 14,
-    VGA_COLOR_WHITE = 15,
-};
-
-static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
+uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
     return fg | bg << 4;
 }
 
-static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
+uint16_t vga_entry(unsigned char uc, uint8_t color) {
     return (uint16_t) uc | (uint16_t) color << 8;
 }
 
@@ -114,30 +95,35 @@ void terminal_writestring(const char* data) {
 }
 
 void kernel_main(void) {
-    /* Initialize terminal interface */
     terminal_initialize();
+    klog_init();
 
-    /* Welcome message */
-    terminal_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-    terminal_writestring("Welcome to SimpleOS!\n");
-    terminal_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
+    KINFO("BOOT", "Glasgow kernel starting up...");
+    KINFO("VGA", "Text mode initialized successfully");
+    KINFO("MEM", "Stack configured at %x", (unsigned int)&terminal_row);
     
-    /* System info */
-    terminal_writestring("Kernel loaded successfully.\n");
-    terminal_writestring("VGA text mode initialized.\n");
-    terminal_writestring("Basic I/O working.\n\n");
-    
-    /* Test colored output */
-    terminal_setcolor(vga_entry_color(VGA_COLOR_YELLOW, VGA_COLOR_BLACK));
-    terminal_writestring("Testing colors: ");
-    terminal_setcolor(vga_entry_color(VGA_COLOR_RED, VGA_COLOR_BLACK));
-    terminal_writestring("RED ");
+    KDEBUG("TEST", "This is a debug message");
+    KINFO("TEST", "This is an info message");  
+    KWARN("TEST", "This is a warning message");
+    KERROR("TEST", "This is an error message");
+        
     terminal_setcolor(vga_entry_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK));
-    terminal_writestring("GREEN ");
-    terminal_setcolor(vga_entry_color(VGA_COLOR_BLUE, VGA_COLOR_BLACK));
-    terminal_writestring("BLUE\n");
-    
+    kprintf("\nKernel Status: RUNNING\n");
     terminal_setcolor(vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
-    terminal_writestring("\nKernel is running in an infinite loop...\n");
-    terminal_writestring("Next steps: Implement GDT, IDT, and interrupts!\n");
+    
+    KINFO("BOOT", "Kernel initialization complete");
+    KINFO("SYS", "Entering main kernel loop...");
+    
+    // testing setting log level
+    kprintf("\nChanging log level to WARN (hiding DEBUG/INFO):\n");
+    klog_set_level(LOG_WARN);
+    
+    KDEBUG("TEST", "You shouldn't see this debug message");
+    KINFO("TEST", "You shouldn't see this info message");
+    KWARN("TEST", "You should see this warning");
+    
+    while (1) {
+        // Kernel runs forever to avoid return
+        __asm__ volatile ("hlt"); // Sleep until interrupt
+    }
 }
