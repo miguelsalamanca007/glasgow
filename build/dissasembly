@@ -1,0 +1,2057 @@
+
+mykernel.bin:	file format elf32-i386
+
+Disassembly of section .text:
+
+00100000 <.text>:
+  100000: 02 b0 ad 1b 03 00            	addb	0x31bad(%eax), %dh
+  100006: 00 00                        	addb	%al, (%eax)
+  100008: fb                           	sti
+  100009: 4f                           	decl	%edi
+  10000a: 52                           	pushl	%edx
+  10000b: e4 bc                        	inb	$0xbc, %al
+
+0010000c <_start>:
+  10000c: bc 00 60 10 00               	movl	$0x106000, %esp         # imm = 0x106000
+  100011: e8 ea 02 00 00               	calll	0x100300 <kernel_main>
+  100016: fa                           	cli
+  100017: f4                           	hlt
+  100018: eb fd                        	jmp	0x100017 <_start+0xb>
+
+0010001a <gdt_flush>:
+  10001a: 8b 44 24 04                  	movl	0x4(%esp), %eax
+  10001e: 0f 01 10                     	lgdtl	(%eax)
+  100021: ea 28 00 10 00 08 00         	ljmpl	$0x8, $0x100028         # imm = 0x100028
+
+00100028 <reload_segments>:
+  100028: 66 b8 10 00                  	movw	$0x10, %ax
+  10002c: 8e d8                        	movl	%eax, %ds
+  10002e: 8e c0                        	movl	%eax, %es
+  100030: 8e e0                        	movl	%eax, %fs
+  100032: 8e e8                        	movl	%eax, %gs
+  100034: 8e d0                        	movl	%eax, %ss
+  100036: c3                           	retl
+  100037: 66 90                        	nop
+  100039: 66 90                        	nop
+  10003b: 66 90                        	nop
+  10003d: 66 90                        	nop
+  10003f: 90                           	nop
+
+00100040 <vga_entry_color>:
+  100040: 55                           	pushl	%ebp
+  100041: 89 e5                        	movl	%esp, %ebp
+  100043: 0f b6 45 0c                  	movzbl	0xc(%ebp), %eax
+  100047: c1 e0 04                     	shll	$0x4, %eax
+  10004a: 0a 45 08                     	orb	0x8(%ebp), %al
+  10004d: 5d                           	popl	%ebp
+  10004e: c3                           	retl
+  10004f: 90                           	nop
+
+00100050 <vga_entry>:
+  100050: 55                           	pushl	%ebp
+  100051: 89 e5                        	movl	%esp, %ebp
+  100053: 0f b6 45 0c                  	movzbl	0xc(%ebp), %eax
+  100057: 0f b6 55 08                  	movzbl	0x8(%ebp), %edx
+  10005b: 5d                           	popl	%ebp
+  10005c: c1 e0 08                     	shll	$0x8, %eax
+  10005f: 09 d0                        	orl	%edx, %eax
+  100061: c3                           	retl
+  100062: 8d b6 00 00 00 00            	leal	(%esi), %esi
+  100068: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+00100070 <strlen>:
+  100070: 55                           	pushl	%ebp
+  100071: 31 c0                        	xorl	%eax, %eax
+  100073: 89 e5                        	movl	%esp, %ebp
+  100075: 8b 55 08                     	movl	0x8(%ebp), %edx
+  100078: 80 3a 00                     	cmpb	$0x0, (%edx)
+  10007b: 74 0c                        	je	0x100089 <strlen+0x19>
+  10007d: 8d 76 00                     	leal	(%esi), %esi
+  100080: 83 c0 01                     	addl	$0x1, %eax
+  100083: 80 3c 02 00                  	cmpb	$0x0, (%edx,%eax)
+  100087: 75 f7                        	jne	0x100080 <strlen+0x10>
+  100089: 5d                           	popl	%ebp
+  10008a: c3                           	retl
+  10008b: 2e 8d 74 26 00               	leal	%cs:(%esi,%eiz), %esi
+
+00100090 <terminal_initialize>:
+  100090: c7 05 0c 60 10 00 00 00 00 00	movl	$0x0, 0x10600c
+  10009a: ba a0 80 0b 00               	movl	$0xb80a0, %edx          # imm = 0xB80A0
+  10009f: c7 05 08 60 10 00 00 00 00 00	movl	$0x0, 0x106008
+  1000a9: c6 05 04 60 10 00 07         	movb	$0x7, 0x106004
+  1000b0: c7 05 00 60 10 00 00 80 0b 00	movl	$0xb8000, 0x106000      # imm = 0xB8000
+  1000ba: 8d b6 00 00 00 00            	leal	(%esi), %esi
+  1000c0: 8d 82 60 ff ff ff            	leal	-0xa0(%edx), %eax
+  1000c6: eb 18                        	jmp	0x1000e0 <terminal_initialize+0x50>
+  1000c8: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  1000d0: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  1000d8: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  1000e0: b9 20 07 00 00               	movl	$0x720, %ecx            # imm = 0x720
+  1000e5: 83 c0 04                     	addl	$0x4, %eax
+  1000e8: 66 89 48 fc                  	movw	%cx, -0x4(%eax)
+  1000ec: b9 20 07 00 00               	movl	$0x720, %ecx            # imm = 0x720
+  1000f1: 66 89 48 fe                  	movw	%cx, -0x2(%eax)
+  1000f5: 39 d0                        	cmpl	%edx, %eax
+  1000f7: 75 e7                        	jne	0x1000e0 <terminal_initialize+0x50>
+  1000f9: 8d 90 a0 00 00 00            	leal	0xa0(%eax), %edx
+  1000ff: 3d a0 8f 0b 00               	cmpl	$0xb8fa0, %eax          # imm = 0xB8FA0
+  100104: 75 ba                        	jne	0x1000c0 <terminal_initialize+0x30>
+  100106: c3                           	retl
+  100107: 90                           	nop
+  100108: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+00100110 <terminal_setcolor>:
+  100110: 55                           	pushl	%ebp
+  100111: 89 e5                        	movl	%esp, %ebp
+  100113: 8b 45 08                     	movl	0x8(%ebp), %eax
+  100116: 5d                           	popl	%ebp
+  100117: a2 04 60 10 00               	movb	%al, 0x106004
+  10011c: c3                           	retl
+  10011d: 8d 76 00                     	leal	(%esi), %esi
+
+00100120 <terminal_putentryat>:
+  100120: 55                           	pushl	%ebp
+  100121: 89 e5                        	movl	%esp, %ebp
+  100123: 0f b6 55 0c                  	movzbl	0xc(%ebp), %edx
+  100127: 0f b6 4d 08                  	movzbl	0x8(%ebp), %ecx
+  10012b: 8b 45 14                     	movl	0x14(%ebp), %eax
+  10012e: c1 e2 08                     	shll	$0x8, %edx
+  100131: 09 ca                        	orl	%ecx, %edx
+  100133: 8d 04 80                     	leal	(%eax,%eax,4), %eax
+  100136: 8b 0d 00 60 10 00            	movl	0x106000, %ecx
+  10013c: c1 e0 04                     	shll	$0x4, %eax
+  10013f: 03 45 10                     	addl	0x10(%ebp), %eax
+  100142: 66 89 14 41                  	movw	%dx, (%ecx,%eax,2)
+  100146: 5d                           	popl	%ebp
+  100147: c3                           	retl
+  100148: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+00100150 <terminal_scroll>:
+  100150: 55                           	pushl	%ebp
+  100151: 89 e5                        	movl	%esp, %ebp
+  100153: 56                           	pushl	%esi
+  100154: 8b 35 00 60 10 00            	movl	0x106000, %esi
+  10015a: 53                           	pushl	%ebx
+  10015b: 8d 8e a0 00 00 00            	leal	0xa0(%esi), %ecx
+  100161: 8d 9e a0 0f 00 00            	leal	0xfa0(%esi), %ebx
+  100167: 90                           	nop
+  100168: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100170: 8d 81 60 ff ff ff            	leal	-0xa0(%ecx), %eax
+  100176: 66 90                        	nop
+  100178: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100180: 0f b7 90 a0 00 00 00         	movzwl	0xa0(%eax), %edx
+  100187: 83 c0 02                     	addl	$0x2, %eax
+  10018a: 66 89 50 fe                  	movw	%dx, -0x2(%eax)
+  10018e: 39 c8                        	cmpl	%ecx, %eax
+  100190: 75 ee                        	jne	0x100180 <terminal_scroll+0x30>
+  100192: 8d 88 a0 00 00 00            	leal	0xa0(%eax), %ecx
+  100198: 39 d9                        	cmpl	%ebx, %ecx
+  10019a: 75 d4                        	jne	0x100170 <terminal_scroll+0x20>
+  10019c: 0f b6 15 04 60 10 00         	movzbl	0x106004, %edx
+  1001a3: 8d 86 00 0f 00 00            	leal	0xf00(%esi), %eax
+  1001a9: 89 d9                        	movl	%ebx, %ecx
+  1001ab: 29 c1                        	subl	%eax, %ecx
+  1001ad: c1 e2 08                     	shll	$0x8, %edx
+  1001b0: 83 ca 20                     	orl	$0x20, %edx
+  1001b3: 83 e1 02                     	andl	$0x2, %ecx
+  1001b6: 74 18                        	je	0x1001d0 <terminal_scroll+0x80>
+  1001b8: 66 89 10                     	movw	%dx, (%eax)
+  1001bb: 8d 86 02 0f 00 00            	leal	0xf02(%esi), %eax
+  1001c1: 39 d8                        	cmpl	%ebx, %eax
+  1001c3: 74 19                        	je	0x1001de <terminal_scroll+0x8e>
+  1001c5: 8d 76 00                     	leal	(%esi), %esi
+  1001c8: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  1001d0: 66 89 10                     	movw	%dx, (%eax)
+  1001d3: 83 c0 04                     	addl	$0x4, %eax
+  1001d6: 66 89 50 fe                  	movw	%dx, -0x2(%eax)
+  1001da: 39 d8                        	cmpl	%ebx, %eax
+  1001dc: 75 f2                        	jne	0x1001d0 <terminal_scroll+0x80>
+  1001de: 5b                           	popl	%ebx
+  1001df: 5e                           	popl	%esi
+  1001e0: 5d                           	popl	%ebp
+  1001e1: c3                           	retl
+  1001e2: 8d b6 00 00 00 00            	leal	(%esi), %esi
+  1001e8: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+001001f0 <terminal_putchar>:
+  1001f0: 55                           	pushl	%ebp
+  1001f1: 89 e5                        	movl	%esp, %ebp
+  1001f3: 57                           	pushl	%edi
+  1001f4: 56                           	pushl	%esi
+  1001f5: 53                           	pushl	%ebx
+  1001f6: 83 ec 0c                     	subl	$0xc, %esp
+  1001f9: 8b 1d 0c 60 10 00            	movl	0x10600c, %ebx
+  1001ff: 80 7d 08 0a                  	cmpb	$0xa, 0x8(%ebp)
+  100203: 74 43                        	je	0x100248 <terminal_putchar+0x58>
+  100205: 0f b6 0d 04 60 10 00         	movzbl	0x106004, %ecx
+  10020c: 0f b6 75 08                  	movzbl	0x8(%ebp), %esi
+  100210: 8d 14 9b                     	leal	(%ebx,%ebx,4), %edx
+  100213: a1 08 60 10 00               	movl	0x106008, %eax
+  100218: c1 e2 04                     	shll	$0x4, %edx
+  10021b: c1 e1 08                     	shll	$0x8, %ecx
+  10021e: 09 f1                        	orl	%esi, %ecx
+  100220: 8b 35 00 60 10 00            	movl	0x106000, %esi
+  100226: 8d 3c 02                     	leal	(%edx,%eax), %edi
+  100229: 83 c0 01                     	addl	$0x1, %eax
+  10022c: 66 89 0c 7e                  	movw	%cx, (%esi,%edi,2)
+  100230: a3 08 60 10 00               	movl	%eax, 0x106008
+  100235: 83 f8 50                     	cmpl	$0x50, %eax
+  100238: 74 0e                        	je	0x100248 <terminal_putchar+0x58>
+  10023a: 83 c4 0c                     	addl	$0xc, %esp
+  10023d: 5b                           	popl	%ebx
+  10023e: 5e                           	popl	%esi
+  10023f: 5f                           	popl	%edi
+  100240: 5d                           	popl	%ebp
+  100241: c3                           	retl
+  100242: 8d b6 00 00 00 00            	leal	(%esi), %esi
+  100248: c7 05 08 60 10 00 00 00 00 00	movl	$0x0, 0x106008
+  100252: 83 c3 01                     	addl	$0x1, %ebx
+  100255: 89 1d 0c 60 10 00            	movl	%ebx, 0x10600c
+  10025b: 83 fb 19                     	cmpl	$0x19, %ebx
+  10025e: 75 da                        	jne	0x10023a <terminal_putchar+0x4a>
+  100260: e8 eb fe ff ff               	calll	0x100150 <terminal_scroll>
+  100265: c7 05 0c 60 10 00 18 00 00 00	movl	$0x18, 0x10600c
+  10026f: eb c9                        	jmp	0x10023a <terminal_putchar+0x4a>
+  100271: 8d b4 26 00 00 00 00         	leal	(%esi,%eiz), %esi
+  100278: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+00100280 <terminal_write>:
+  100280: 55                           	pushl	%ebp
+  100281: 89 e5                        	movl	%esp, %ebp
+  100283: 56                           	pushl	%esi
+  100284: 53                           	pushl	%ebx
+  100285: 8b 75 0c                     	movl	0xc(%ebp), %esi
+  100288: 85 f6                        	testl	%esi, %esi
+  10028a: 74 2a                        	je	0x1002b6 <terminal_write+0x36>
+  10028c: 8b 5d 08                     	movl	0x8(%ebp), %ebx
+  10028f: 01 de                        	addl	%ebx, %esi
+  100291: 8d b4 26 00 00 00 00         	leal	(%esi,%eiz), %esi
+  100298: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  1002a0: 0f be 03                     	movsbl	(%ebx), %eax
+  1002a3: 83 ec 0c                     	subl	$0xc, %esp
+  1002a6: 83 c3 01                     	addl	$0x1, %ebx
+  1002a9: 50                           	pushl	%eax
+  1002aa: e8 41 ff ff ff               	calll	0x1001f0 <terminal_putchar>
+  1002af: 83 c4 10                     	addl	$0x10, %esp
+  1002b2: 39 f3                        	cmpl	%esi, %ebx
+  1002b4: 75 ea                        	jne	0x1002a0 <terminal_write+0x20>
+  1002b6: 8d 65 f8                     	leal	-0x8(%ebp), %esp
+  1002b9: 5b                           	popl	%ebx
+  1002ba: 5e                           	popl	%esi
+  1002bb: 5d                           	popl	%ebp
+  1002bc: c3                           	retl
+  1002bd: 8d 76 00                     	leal	(%esi), %esi
+
+001002c0 <terminal_writestring>:
+  1002c0: 55                           	pushl	%ebp
+  1002c1: 89 e5                        	movl	%esp, %ebp
+  1002c3: 56                           	pushl	%esi
+  1002c4: 53                           	pushl	%ebx
+  1002c5: 8b 5d 08                     	movl	0x8(%ebp), %ebx
+  1002c8: 80 3b 00                     	cmpb	$0x0, (%ebx)
+  1002cb: 74 29                        	je	0x1002f6 <terminal_writestring+0x36>
+  1002cd: 31 c0                        	xorl	%eax, %eax
+  1002cf: 90                           	nop
+  1002d0: 83 c0 01                     	addl	$0x1, %eax
+  1002d3: 80 3c 03 00                  	cmpb	$0x0, (%ebx,%eax)
+  1002d7: 75 f7                        	jne	0x1002d0 <terminal_writestring+0x10>
+  1002d9: 8d 34 03                     	leal	(%ebx,%eax), %esi
+  1002dc: 8d 74 26 00                  	leal	(%esi,%eiz), %esi
+  1002e0: 0f be 03                     	movsbl	(%ebx), %eax
+  1002e3: 83 ec 0c                     	subl	$0xc, %esp
+  1002e6: 83 c3 01                     	addl	$0x1, %ebx
+  1002e9: 50                           	pushl	%eax
+  1002ea: e8 01 ff ff ff               	calll	0x1001f0 <terminal_putchar>
+  1002ef: 83 c4 10                     	addl	$0x10, %esp
+  1002f2: 39 f3                        	cmpl	%esi, %ebx
+  1002f4: 75 ea                        	jne	0x1002e0 <terminal_writestring+0x20>
+  1002f6: 8d 65 f8                     	leal	-0x8(%ebp), %esp
+  1002f9: 5b                           	popl	%ebx
+  1002fa: 5e                           	popl	%esi
+  1002fb: 5d                           	popl	%ebp
+  1002fc: c3                           	retl
+  1002fd: 8d 76 00                     	leal	(%esi), %esi
+
+00100300 <kernel_main>:
+  100300: 55                           	pushl	%ebp
+  100301: 89 e5                        	movl	%esp, %ebp
+  100303: 83 ec 08                     	subl	$0x8, %esp
+  100306: e8 85 fd ff ff               	calll	0x100090 <terminal_initialize>
+  10030b: e8 d0 05 00 00               	calll	0x1008e0 <klog_init>
+  100310: e8 3b 06 00 00               	calll	0x100950 <gdt_init>
+  100315: 83 ec 04                     	subl	$0x4, %esp
+  100318: 68 1c 10 10 00               	pushl	$0x10101c               # imm = 0x10101C
+  10031d: 68 3a 10 10 00               	pushl	$0x10103a               # imm = 0x10103A
+  100322: 6a 01                        	pushl	$0x1
+  100324: e8 77 04 00 00               	calll	0x1007a0 <klog>
+  100329: 83 c4 0c                     	addl	$0xc, %esp
+  10032c: 68 38 12 10 00               	pushl	$0x101238               # imm = 0x101238
+  100331: 68 3f 10 10 00               	pushl	$0x10103f               # imm = 0x10103F
+  100336: 6a 01                        	pushl	$0x1
+  100338: e8 63 04 00 00               	calll	0x1007a0 <klog>
+  10033d: 68 0c 60 10 00               	pushl	$0x10600c               # imm = 0x10600C
+  100342: 68 43 10 10 00               	pushl	$0x101043               # imm = 0x101043
+  100347: 68 5a 10 10 00               	pushl	$0x10105a               # imm = 0x10105A
+  10034c: 6a 01                        	pushl	$0x1
+  10034e: e8 4d 04 00 00               	calll	0x1007a0 <klog>
+  100353: 83 c4 1c                     	addl	$0x1c, %esp
+  100356: 68 5e 10 10 00               	pushl	$0x10105e               # imm = 0x10105E
+  10035b: 68 76 10 10 00               	pushl	$0x101076               # imm = 0x101076
+  100360: 6a 00                        	pushl	$0x0
+  100362: e8 39 04 00 00               	calll	0x1007a0 <klog>
+  100367: 83 c4 0c                     	addl	$0xc, %esp
+  10036a: 68 7b 10 10 00               	pushl	$0x10107b               # imm = 0x10107B
+  10036f: 68 76 10 10 00               	pushl	$0x101076               # imm = 0x101076
+  100374: 6a 01                        	pushl	$0x1
+  100376: e8 25 04 00 00               	calll	0x1007a0 <klog>
+  10037b: 83 c4 0c                     	addl	$0xc, %esp
+  10037e: 68 93 10 10 00               	pushl	$0x101093               # imm = 0x101093
+  100383: 68 76 10 10 00               	pushl	$0x101076               # imm = 0x101076
+  100388: 6a 02                        	pushl	$0x2
+  10038a: e8 11 04 00 00               	calll	0x1007a0 <klog>
+  10038f: 83 c4 0c                     	addl	$0xc, %esp
+  100392: 68 ad 10 10 00               	pushl	$0x1010ad               # imm = 0x1010AD
+  100397: 68 76 10 10 00               	pushl	$0x101076               # imm = 0x101076
+  10039c: 6a 03                        	pushl	$0x3
+  10039e: e8 fd 03 00 00               	calll	0x1007a0 <klog>
+  1003a3: c7 04 24 c6 10 10 00         	movl	$0x1010c6, (%esp)       # imm = 0x1010C6
+  1003aa: c6 05 04 60 10 00 02         	movb	$0x2, 0x106004
+  1003b1: e8 7a 05 00 00               	calll	0x100930 <kprintf>
+  1003b6: 83 c4 0c                     	addl	$0xc, %esp
+  1003b9: c6 05 04 60 10 00 0f         	movb	$0xf, 0x106004
+  1003c0: 68 60 12 10 00               	pushl	$0x101260               # imm = 0x101260
+  1003c5: 68 3a 10 10 00               	pushl	$0x10103a               # imm = 0x10103A
+  1003ca: 6a 01                        	pushl	$0x1
+  1003cc: e8 cf 03 00 00               	calll	0x1007a0 <klog>
+  1003d1: 83 c4 0c                     	addl	$0xc, %esp
+  1003d4: 68 df 10 10 00               	pushl	$0x1010df               # imm = 0x1010DF
+  1003d9: 68 fc 10 10 00               	pushl	$0x1010fc               # imm = 0x1010FC
+  1003de: 6a 01                        	pushl	$0x1
+  1003e0: e8 bb 03 00 00               	calll	0x1007a0 <klog>
+  1003e5: c7 04 24 80 12 10 00         	movl	$0x101280, (%esp)       # imm = 0x101280
+  1003ec: e8 3f 05 00 00               	calll	0x100930 <kprintf>
+  1003f1: c7 04 24 02 00 00 00         	movl	$0x2, (%esp)
+  1003f8: e8 03 05 00 00               	calll	0x100900 <klog_set_level>
+  1003fd: 83 c4 0c                     	addl	$0xc, %esp
+  100400: 68 b4 12 10 00               	pushl	$0x1012b4               # imm = 0x1012B4
+  100405: 68 76 10 10 00               	pushl	$0x101076               # imm = 0x101076
+  10040a: 6a 00                        	pushl	$0x0
+  10040c: e8 8f 03 00 00               	calll	0x1007a0 <klog>
+  100411: 83 c4 0c                     	addl	$0xc, %esp
+  100414: 68 dc 12 10 00               	pushl	$0x1012dc               # imm = 0x1012DC
+  100419: 68 76 10 10 00               	pushl	$0x101076               # imm = 0x101076
+  10041e: 6a 01                        	pushl	$0x1
+  100420: e8 7b 03 00 00               	calll	0x1007a0 <klog>
+  100425: 83 c4 0c                     	addl	$0xc, %esp
+  100428: 68 00 11 10 00               	pushl	$0x101100               # imm = 0x101100
+  10042d: 68 76 10 10 00               	pushl	$0x101076               # imm = 0x101076
+  100432: 6a 02                        	pushl	$0x2
+  100434: e8 67 03 00 00               	calll	0x1007a0 <klog>
+  100439: 83 c4 10                     	addl	$0x10, %esp
+  10043c: 8d 74 26 00                  	leal	(%esi,%eiz), %esi
+  100440: f4                           	hlt
+  100441: eb fd                        	jmp	0x100440 <kernel_main+0x140>
+  100443: 66 90                        	nop
+  100445: 66 90                        	nop
+  100447: 66 90                        	nop
+  100449: 66 90                        	nop
+  10044b: 66 90                        	nop
+  10044d: 66 90                        	nop
+  10044f: 66 90                        	nop
+  100451: 66 90                        	nop
+  100453: 66 90                        	nop
+  100455: 66 90                        	nop
+  100457: 66 90                        	nop
+  100459: 66 90                        	nop
+  10045b: 66 90                        	nop
+  10045d: 66 90                        	nop
+  10045f: 90                           	nop
+
+00100460 <kernel_panic>:
+  100460: 55                           	pushl	%ebp
+  100461: 89 e5                        	movl	%esp, %ebp
+  100463: 83 ec 10                     	subl	$0x10, %esp
+  100466: fa                           	cli
+  100467: 6a 04                        	pushl	$0x4
+  100469: 6a 0f                        	pushl	$0xf
+  10046b: e8 d0 fb ff ff               	calll	0x100040 <vga_entry_color>
+  100470: 0f b6 c0                     	movzbl	%al, %eax
+  100473: 89 04 24                     	movl	%eax, (%esp)
+  100476: e8 95 fc ff ff               	calll	0x100110 <terminal_setcolor>
+  10047b: c7 04 24 1c 11 10 00         	movl	$0x10111c, (%esp)       # imm = 0x10111C
+  100482: e8 39 fe ff ff               	calll	0x1002c0 <terminal_writestring>
+  100487: c7 04 24 00 13 10 00         	movl	$0x101300, (%esp)       # imm = 0x101300
+  10048e: e8 2d fe ff ff               	calll	0x1002c0 <terminal_writestring>
+  100493: 58                           	popl	%eax
+  100494: ff 75 08                     	pushl	0x8(%ebp)
+  100497: e8 24 fe ff ff               	calll	0x1002c0 <terminal_writestring>
+  10049c: c7 04 24 34 11 10 00         	movl	$0x101134, (%esp)       # imm = 0x101134
+  1004a3: e8 18 fe ff ff               	calll	0x1002c0 <terminal_writestring>
+  1004a8: 83 c4 10                     	addl	$0x10, %esp
+  1004ab: 2e 8d 74 26 00               	leal	%cs:(%esi,%eiz), %esi
+  1004b0: f4                           	hlt
+  1004b1: eb fd                        	jmp	0x1004b0 <kernel_panic+0x50>
+  1004b3: 2e 8d 74 26 00               	leal	%cs:(%esi,%eiz), %esi
+  1004b8: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+001004c0 <kstrlen>:
+  1004c0: 55                           	pushl	%ebp
+  1004c1: 31 c0                        	xorl	%eax, %eax
+  1004c3: 89 e5                        	movl	%esp, %ebp
+  1004c5: 8b 55 08                     	movl	0x8(%ebp), %edx
+  1004c8: 80 3a 00                     	cmpb	$0x0, (%edx)
+  1004cb: 74 0c                        	je	0x1004d9 <kstrlen+0x19>
+  1004cd: 8d 76 00                     	leal	(%esi), %esi
+  1004d0: 83 c0 01                     	addl	$0x1, %eax
+  1004d3: 80 3c 02 00                  	cmpb	$0x0, (%edx,%eax)
+  1004d7: 75 f7                        	jne	0x1004d0 <kstrlen+0x10>
+  1004d9: 5d                           	popl	%ebp
+  1004da: c3                           	retl
+  1004db: 2e 8d 74 26 00               	leal	%cs:(%esi,%eiz), %esi
+
+001004e0 <kstrcpy>:
+  1004e0: 55                           	pushl	%ebp
+  1004e1: 89 e5                        	movl	%esp, %ebp
+  1004e3: 8b 4d 0c                     	movl	0xc(%ebp), %ecx
+  1004e6: 8b 45 08                     	movl	0x8(%ebp), %eax
+  1004e9: 0f b6 11                     	movzbl	(%ecx), %edx
+  1004ec: 84 d2                        	testb	%dl, %dl
+  1004ee: 74 0f                        	je	0x1004ff <kstrcpy+0x1f>
+  1004f0: 83 c1 01                     	addl	$0x1, %ecx
+  1004f3: 88 10                        	movb	%dl, (%eax)
+  1004f5: 83 c0 01                     	addl	$0x1, %eax
+  1004f8: 0f b6 11                     	movzbl	(%ecx), %edx
+  1004fb: 84 d2                        	testb	%dl, %dl
+  1004fd: 75 f1                        	jne	0x1004f0 <kstrcpy+0x10>
+  1004ff: c6 00 00                     	movb	$0x0, (%eax)
+  100502: 5d                           	popl	%ebp
+  100503: c3                           	retl
+  100504: 8d 74 26 00                  	leal	(%esi,%eiz), %esi
+  100508: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+00100510 <kmemset>:
+  100510: 55                           	pushl	%ebp
+  100511: 89 e5                        	movl	%esp, %ebp
+  100513: 53                           	pushl	%ebx
+  100514: 8b 45 08                     	movl	0x8(%ebp), %eax
+  100517: 8b 5d 10                     	movl	0x10(%ebp), %ebx
+  10051a: 8b 55 0c                     	movl	0xc(%ebp), %edx
+  10051d: 8d 0c 18                     	leal	(%eax,%ebx), %ecx
+  100520: 85 db                        	testl	%ebx, %ebx
+  100522: 74 28                        	je	0x10054c <kmemset+0x3c>
+  100524: 89 cb                        	movl	%ecx, %ebx
+  100526: 29 c3                        	subl	%eax, %ebx
+  100528: 83 e3 01                     	andl	$0x1, %ebx
+  10052b: 74 13                        	je	0x100540 <kmemset+0x30>
+  10052d: 83 c0 01                     	addl	$0x1, %eax
+  100530: 88 50 ff                     	movb	%dl, -0x1(%eax)
+  100533: 39 c1                        	cmpl	%eax, %ecx
+  100535: 74 15                        	je	0x10054c <kmemset+0x3c>
+  100537: 90                           	nop
+  100538: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100540: 88 10                        	movb	%dl, (%eax)
+  100542: 83 c0 02                     	addl	$0x2, %eax
+  100545: 88 50 ff                     	movb	%dl, -0x1(%eax)
+  100548: 39 c1                        	cmpl	%eax, %ecx
+  10054a: 75 f4                        	jne	0x100540 <kmemset+0x30>
+  10054c: 8b 5d fc                     	movl	-0x4(%ebp), %ebx
+  10054f: c9                           	leave
+  100550: c3                           	retl
+  100551: 8d b4 26 00 00 00 00         	leal	(%esi,%eiz), %esi
+  100558: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+00100560 <kitoa>:
+  100560: 55                           	pushl	%ebp
+  100561: 89 e5                        	movl	%esp, %ebp
+  100563: 57                           	pushl	%edi
+  100564: 8b 45 08                     	movl	0x8(%ebp), %eax
+  100567: 8b 4d 0c                     	movl	0xc(%ebp), %ecx
+  10056a: 56                           	pushl	%esi
+  10056b: 8b 75 10                     	movl	0x10(%ebp), %esi
+  10056e: 53                           	pushl	%ebx
+  10056f: 85 c0                        	testl	%eax, %eax
+  100571: 79 0d                        	jns	0x100580 <kitoa+0x20>
+  100573: 83 fe 0a                     	cmpl	$0xa, %esi
+  100576: 75 08                        	jne	0x100580 <kitoa+0x20>
+  100578: c6 01 2d                     	movb	$0x2d, (%ecx)
+  10057b: f7 d8                        	negl	%eax
+  10057d: 83 c1 01                     	addl	$0x1, %ecx
+  100580: 89 cb                        	movl	%ecx, %ebx
+  100582: eb 1c                        	jmp	0x1005a0 <kitoa+0x40>
+  100584: 8d 74 26 00                  	leal	(%esi,%eiz), %esi
+  100588: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100590: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100598: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  1005a0: 99                           	cltd
+  1005a1: 89 df                        	movl	%ebx, %edi
+  1005a3: 8d 5b 01                     	leal	0x1(%ebx), %ebx
+  1005a6: f7 fe                        	idivl	%esi
+  1005a8: 0f b6 92 51 11 10 00         	movzbl	0x101151(%edx), %edx
+  1005af: 88 53 ff                     	movb	%dl, -0x1(%ebx)
+  1005b2: 85 c0                        	testl	%eax, %eax
+  1005b4: 75 ea                        	jne	0x1005a0 <kitoa+0x40>
+  1005b6: c6 03 00                     	movb	$0x0, (%ebx)
+  1005b9: 39 f9                        	cmpl	%edi, %ecx
+  1005bb: 73 19                        	jae	0x1005d6 <kitoa+0x76>
+  1005bd: 8d 76 00                     	leal	(%esi), %esi
+  1005c0: 0f b6 07                     	movzbl	(%edi), %eax
+  1005c3: 0f b6 11                     	movzbl	(%ecx), %edx
+  1005c6: 83 ef 01                     	subl	$0x1, %edi
+  1005c9: 83 c1 01                     	addl	$0x1, %ecx
+  1005cc: 88 57 01                     	movb	%dl, 0x1(%edi)
+  1005cf: 88 41 ff                     	movb	%al, -0x1(%ecx)
+  1005d2: 39 f9                        	cmpl	%edi, %ecx
+  1005d4: 72 ea                        	jb	0x1005c0 <kitoa+0x60>
+  1005d6: 5b                           	popl	%ebx
+  1005d7: 5e                           	popl	%esi
+  1005d8: 5f                           	popl	%edi
+  1005d9: 5d                           	popl	%ebp
+  1005da: c3                           	retl
+  1005db: 2e 8d 74 26 00               	leal	%cs:(%esi,%eiz), %esi
+
+001005e0 <kvprintf>:
+  1005e0: 55                           	pushl	%ebp
+  1005e1: 89 e5                        	movl	%esp, %ebp
+  1005e3: 57                           	pushl	%edi
+  1005e4: 56                           	pushl	%esi
+  1005e5: 8d bd e8 fd ff ff            	leal	-0x218(%ebp), %edi
+  1005eb: 53                           	pushl	%ebx
+  1005ec: 89 fb                        	movl	%edi, %ebx
+  1005ee: 81 ec 3c 02 00 00            	subl	$0x23c, %esp            # imm = 0x23C
+  1005f4: 8b 4d 08                     	movl	0x8(%ebp), %ecx
+  1005f7: 8b 45 0c                     	movl	0xc(%ebp), %eax
+  1005fa: 0f b6 11                     	movzbl	(%ecx), %edx
+  1005fd: 84 d2                        	testb	%dl, %dl
+  1005ff: 75 31                        	jne	0x100632 <kvprintf+0x52>
+  100601: eb 6e                        	jmp	0x100671 <kvprintf+0x91>
+  100603: eb 1b                        	jmp	0x100620 <kvprintf+0x40>
+  100605: 8d 76 00                     	leal	(%esi), %esi
+  100608: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100610: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100618: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100620: 88 13                        	movb	%dl, (%ebx)
+  100622: 89 ce                        	movl	%ecx, %esi
+  100624: 83 c3 01                     	addl	$0x1, %ebx
+  100627: 0f b6 56 01                  	movzbl	0x1(%esi), %edx
+  10062b: 8d 4e 01                     	leal	0x1(%esi), %ecx
+  10062e: 84 d2                        	testb	%dl, %dl
+  100630: 74 3f                        	je	0x100671 <kvprintf+0x91>
+  100632: 8d 71 01                     	leal	0x1(%ecx), %esi
+  100635: 80 fa 25                     	cmpb	$0x25, %dl
+  100638: 75 e6                        	jne	0x100620 <kvprintf+0x40>
+  10063a: 0f b6 51 01                  	movzbl	0x1(%ecx), %edx
+  10063e: 80 fa 64                     	cmpb	$0x64, %dl
+  100641: 0f 84 f9 00 00 00            	je	0x100740 <kvprintf+0x160>
+  100647: 7f 47                        	jg	0x100690 <kvprintf+0xb0>
+  100649: 80 fa 25                     	cmpb	$0x25, %dl
+  10064c: 0f 84 de 00 00 00            	je	0x100730 <kvprintf+0x150>
+  100652: 80 fa 63                     	cmpb	$0x63, %dl
+  100655: 0f 85 95 00 00 00            	jne	0x1006f0 <kvprintf+0x110>
+  10065b: 8b 10                        	movl	(%eax), %edx
+  10065d: 83 c3 01                     	addl	$0x1, %ebx
+  100660: 83 c0 04                     	addl	$0x4, %eax
+  100663: 8d 4e 01                     	leal	0x1(%esi), %ecx
+  100666: 88 53 ff                     	movb	%dl, -0x1(%ebx)
+  100669: 0f b6 56 01                  	movzbl	0x1(%esi), %edx
+  10066d: 84 d2                        	testb	%dl, %dl
+  10066f: 75 c1                        	jne	0x100632 <kvprintf+0x52>
+  100671: 83 ec 0c                     	subl	$0xc, %esp
+  100674: c6 03 00                     	movb	$0x0, (%ebx)
+  100677: 57                           	pushl	%edi
+  100678: e8 43 fc ff ff               	calll	0x1002c0 <terminal_writestring>
+  10067d: 83 c4 10                     	addl	$0x10, %esp
+  100680: 8d 65 f4                     	leal	-0xc(%ebp), %esp
+  100683: 5b                           	popl	%ebx
+  100684: 5e                           	popl	%esi
+  100685: 5f                           	popl	%edi
+  100686: 5d                           	popl	%ebp
+  100687: c3                           	retl
+  100688: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100690: 80 fa 73                     	cmpb	$0x73, %dl
+  100693: 74 6b                        	je	0x100700 <kvprintf+0x120>
+  100695: 80 fa 78                     	cmpb	$0x78, %dl
+  100698: 75 56                        	jne	0x1006f0 <kvprintf+0x110>
+  10069a: 83 ec 04                     	subl	$0x4, %esp
+  10069d: 8d 48 04                     	leal	0x4(%eax), %ecx
+  1006a0: 8d 95 c8 fd ff ff            	leal	-0x238(%ebp), %edx
+  1006a6: 89 8d c4 fd ff ff            	movl	%ecx, -0x23c(%ebp)
+  1006ac: 6a 10                        	pushl	$0x10
+  1006ae: 52                           	pushl	%edx
+  1006af: ff 30                        	pushl	(%eax)
+  1006b1: e8 aa fe ff ff               	calll	0x100560 <kitoa>
+  1006b6: 0f b6 85 c8 fd ff ff         	movzbl	-0x238(%ebp), %eax
+  1006bd: 83 c4 10                     	addl	$0x10, %esp
+  1006c0: 84 c0                        	testb	%al, %al
+  1006c2: 74 1b                        	je	0x1006df <kvprintf+0xff>
+  1006c4: 8d 95 c8 fd ff ff            	leal	-0x238(%ebp), %edx
+  1006ca: 8d b6 00 00 00 00            	leal	(%esi), %esi
+  1006d0: 83 c2 01                     	addl	$0x1, %edx
+  1006d3: 88 03                        	movb	%al, (%ebx)
+  1006d5: 83 c3 01                     	addl	$0x1, %ebx
+  1006d8: 0f b6 02                     	movzbl	(%edx), %eax
+  1006db: 84 c0                        	testb	%al, %al
+  1006dd: 75 f1                        	jne	0x1006d0 <kvprintf+0xf0>
+  1006df: 8b 85 c4 fd ff ff            	movl	-0x23c(%ebp), %eax
+  1006e5: e9 3d ff ff ff               	jmp	0x100627 <kvprintf+0x47>
+  1006ea: 8d b6 00 00 00 00            	leal	(%esi), %esi
+  1006f0: c6 03 25                     	movb	$0x25, (%ebx)
+  1006f3: 83 c3 02                     	addl	$0x2, %ebx
+  1006f6: 88 53 ff                     	movb	%dl, -0x1(%ebx)
+  1006f9: e9 29 ff ff ff               	jmp	0x100627 <kvprintf+0x47>
+  1006fe: 66 90                        	nop
+  100700: 8b 08                        	movl	(%eax), %ecx
+  100702: 8d 50 04                     	leal	0x4(%eax), %edx
+  100705: 0f b6 01                     	movzbl	(%ecx), %eax
+  100708: 84 c0                        	testb	%al, %al
+  10070a: 74 13                        	je	0x10071f <kvprintf+0x13f>
+  10070c: 8d 74 26 00                  	leal	(%esi,%eiz), %esi
+  100710: 83 c1 01                     	addl	$0x1, %ecx
+  100713: 88 03                        	movb	%al, (%ebx)
+  100715: 83 c3 01                     	addl	$0x1, %ebx
+  100718: 0f b6 01                     	movzbl	(%ecx), %eax
+  10071b: 84 c0                        	testb	%al, %al
+  10071d: 75 f1                        	jne	0x100710 <kvprintf+0x130>
+  10071f: 89 d0                        	movl	%edx, %eax
+  100721: e9 01 ff ff ff               	jmp	0x100627 <kvprintf+0x47>
+  100726: 66 90                        	nop
+  100728: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100730: c6 03 25                     	movb	$0x25, (%ebx)
+  100733: 83 c3 01                     	addl	$0x1, %ebx
+  100736: e9 ec fe ff ff               	jmp	0x100627 <kvprintf+0x47>
+  10073b: 2e 8d 74 26 00               	leal	%cs:(%esi,%eiz), %esi
+  100740: 83 ec 04                     	subl	$0x4, %esp
+  100743: 8d 48 04                     	leal	0x4(%eax), %ecx
+  100746: 8d 95 c8 fd ff ff            	leal	-0x238(%ebp), %edx
+  10074c: 89 8d c4 fd ff ff            	movl	%ecx, -0x23c(%ebp)
+  100752: 6a 0a                        	pushl	$0xa
+  100754: 52                           	pushl	%edx
+  100755: ff 30                        	pushl	(%eax)
+  100757: e8 04 fe ff ff               	calll	0x100560 <kitoa>
+  10075c: 0f b6 85 c8 fd ff ff         	movzbl	-0x238(%ebp), %eax
+  100763: 83 c4 10                     	addl	$0x10, %esp
+  100766: 84 c0                        	testb	%al, %al
+  100768: 0f 84 71 ff ff ff            	je	0x1006df <kvprintf+0xff>
+  10076e: 8d 95 c8 fd ff ff            	leal	-0x238(%ebp), %edx
+  100774: 8d 74 26 00                  	leal	(%esi,%eiz), %esi
+  100778: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+  100780: 83 c2 01                     	addl	$0x1, %edx
+  100783: 88 03                        	movb	%al, (%ebx)
+  100785: 83 c3 01                     	addl	$0x1, %ebx
+  100788: 0f b6 02                     	movzbl	(%edx), %eax
+  10078b: 84 c0                        	testb	%al, %al
+  10078d: 75 f1                        	jne	0x100780 <kvprintf+0x1a0>
+  10078f: 8b 85 c4 fd ff ff            	movl	-0x23c(%ebp), %eax
+  100795: e9 8d fe ff ff               	jmp	0x100627 <kvprintf+0x47>
+  10079a: 8d b6 00 00 00 00            	leal	(%esi), %esi
+
+001007a0 <klog>:
+  1007a0: 55                           	pushl	%ebp
+  1007a1: 89 e5                        	movl	%esp, %ebp
+  1007a3: 53                           	pushl	%ebx
+  1007a4: 83 ec 04                     	subl	$0x4, %esp
+  1007a7: 8b 5d 08                     	movl	0x8(%ebp), %ebx
+  1007aa: 3b 1d 10 60 10 00            	cmpl	0x106010, %ebx
+  1007b0: 0f 82 93 00 00 00            	jb	0x100849 <klog+0xa9>
+  1007b6: 83 fb 04                     	cmpl	$0x4, %ebx
+  1007b9: 0f 84 91 00 00 00            	je	0x100850 <klog+0xb0>
+  1007bf: 0f b6 83 00 10 10 00         	movzbl	0x101000(%ebx), %eax
+  1007c6: 83 ec 08                     	subl	$0x8, %esp
+  1007c9: 6a 00                        	pushl	$0x0
+  1007cb: 50                           	pushl	%eax
+  1007cc: e8 6f f8 ff ff               	calll	0x100040 <vga_entry_color>
+  1007d1: 0f b6 c0                     	movzbl	%al, %eax
+  1007d4: 89 04 24                     	movl	%eax, (%esp)
+  1007d7: e8 34 f9 ff ff               	calll	0x100110 <terminal_setcolor>
+  1007dc: c7 04 24 62 11 10 00         	movl	$0x101162, (%esp)       # imm = 0x101162
+  1007e3: e8 d8 fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  1007e8: 58                           	popl	%eax
+  1007e9: ff 34 9d 08 10 10 00         	pushl	0x101008(,%ebx,4)
+  1007f0: e8 cb fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  1007f5: c7 04 24 6a 11 10 00         	movl	$0x10116a, (%esp)       # imm = 0x10116A
+  1007fc: e8 bf fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  100801: 5a                           	popl	%edx
+  100802: ff 75 0c                     	pushl	0xc(%ebp)
+  100805: e8 b6 fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  10080a: c7 04 24 6d 11 10 00         	movl	$0x10116d, (%esp)       # imm = 0x10116D
+  100811: e8 aa fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  100816: 8d 45 14                     	leal	0x14(%ebp), %eax
+  100819: 59                           	popl	%ecx
+  10081a: 5b                           	popl	%ebx
+  10081b: 50                           	pushl	%eax
+  10081c: ff 75 10                     	pushl	0x10(%ebp)
+  10081f: e8 bc fd ff ff               	calll	0x1005e0 <kvprintf>
+  100824: c7 04 24 0a 00 00 00         	movl	$0xa, (%esp)
+  10082b: e8 c0 f9 ff ff               	calll	0x1001f0 <terminal_putchar>
+  100830: 58                           	popl	%eax
+  100831: 5a                           	popl	%edx
+  100832: 6a 00                        	pushl	$0x0
+  100834: 6a 07                        	pushl	$0x7
+  100836: e8 05 f8 ff ff               	calll	0x100040 <vga_entry_color>
+  10083b: 0f b6 c0                     	movzbl	%al, %eax
+  10083e: 89 04 24                     	movl	%eax, (%esp)
+  100841: e8 ca f8 ff ff               	calll	0x100110 <terminal_setcolor>
+  100846: 83 c4 10                     	addl	$0x10, %esp
+  100849: 8b 5d fc                     	movl	-0x4(%ebp), %ebx
+  10084c: c9                           	leave
+  10084d: c3                           	retl
+  10084e: 66 90                        	nop
+  100850: 83 ec 08                     	subl	$0x8, %esp
+  100853: 6a 04                        	pushl	$0x4
+  100855: 6a 0f                        	pushl	$0xf
+  100857: e8 e4 f7 ff ff               	calll	0x100040 <vga_entry_color>
+  10085c: 0f b6 c0                     	movzbl	%al, %eax
+  10085f: 89 04 24                     	movl	%eax, (%esp)
+  100862: e8 a9 f8 ff ff               	calll	0x100110 <terminal_setcolor>
+  100867: c7 04 24 62 11 10 00         	movl	$0x101162, (%esp)       # imm = 0x101162
+  10086e: e8 4d fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  100873: c7 04 24 64 11 10 00         	movl	$0x101164, (%esp)       # imm = 0x101164
+  10087a: e8 41 fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  10087f: c7 04 24 6a 11 10 00         	movl	$0x10116a, (%esp)       # imm = 0x10116A
+  100886: e8 35 fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  10088b: 59                           	popl	%ecx
+  10088c: ff 75 0c                     	pushl	0xc(%ebp)
+  10088f: e8 2c fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  100894: c7 04 24 6d 11 10 00         	movl	$0x10116d, (%esp)       # imm = 0x10116D
+  10089b: e8 20 fa ff ff               	calll	0x1002c0 <terminal_writestring>
+  1008a0: 8d 45 14                     	leal	0x14(%ebp), %eax
+  1008a3: 5b                           	popl	%ebx
+  1008a4: 5a                           	popl	%edx
+  1008a5: 50                           	pushl	%eax
+  1008a6: ff 75 10                     	pushl	0x10(%ebp)
+  1008a9: e8 32 fd ff ff               	calll	0x1005e0 <kvprintf>
+  1008ae: c7 04 24 0a 00 00 00         	movl	$0xa, (%esp)
+  1008b5: e8 36 f9 ff ff               	calll	0x1001f0 <terminal_putchar>
+  1008ba: 59                           	popl	%ecx
+  1008bb: 5b                           	popl	%ebx
+  1008bc: 6a 00                        	pushl	$0x0
+  1008be: 6a 07                        	pushl	$0x7
+  1008c0: e8 7b f7 ff ff               	calll	0x100040 <vga_entry_color>
+  1008c5: 0f b6 c0                     	movzbl	%al, %eax
+  1008c8: 89 04 24                     	movl	%eax, (%esp)
+  1008cb: e8 40 f8 ff ff               	calll	0x100110 <terminal_setcolor>
+  1008d0: c7 04 24 70 11 10 00         	movl	$0x101170, (%esp)       # imm = 0x101170
+  1008d7: e8 84 fb ff ff               	calll	0x100460 <kernel_panic>
+  1008dc: 8d 74 26 00                  	leal	(%esi,%eiz), %esi
+
+001008e0 <klog_init>:
+  1008e0: 55                           	pushl	%ebp
+  1008e1: 89 e5                        	movl	%esp, %ebp
+  1008e3: 83 ec 0c                     	subl	$0xc, %esp
+  1008e6: 68 28 13 10 00               	pushl	$0x101328               # imm = 0x101328
+  1008eb: 68 8c 11 10 00               	pushl	$0x10118c               # imm = 0x10118C
+  1008f0: 6a 01                        	pushl	$0x1
+  1008f2: e8 a9 fe ff ff               	calll	0x1007a0 <klog>
+  1008f7: 83 c4 10                     	addl	$0x10, %esp
+  1008fa: c9                           	leave
+  1008fb: c3                           	retl
+  1008fc: 8d 74 26 00                  	leal	(%esi,%eiz), %esi
+
+00100900 <klog_set_level>:
+  100900: 55                           	pushl	%ebp
+  100901: 89 e5                        	movl	%esp, %ebp
+  100903: 83 ec 08                     	subl	$0x8, %esp
+  100906: 8b 45 08                     	movl	0x8(%ebp), %eax
+  100909: ff 34 85 08 10 10 00         	pushl	0x101008(,%eax,4)
+  100910: 68 91 11 10 00               	pushl	$0x101191               # imm = 0x101191
+  100915: 68 8c 11 10 00               	pushl	$0x10118c               # imm = 0x10118C
+  10091a: 6a 01                        	pushl	$0x1
+  10091c: a3 10 60 10 00               	movl	%eax, 0x106010
+  100921: e8 7a fe ff ff               	calll	0x1007a0 <klog>
+  100926: 83 c4 10                     	addl	$0x10, %esp
+  100929: c9                           	leave
+  10092a: c3                           	retl
+  10092b: 2e 8d 74 26 00               	leal	%cs:(%esi,%eiz), %esi
+
+00100930 <kprintf>:
+  100930: 55                           	pushl	%ebp
+  100931: 89 e5                        	movl	%esp, %ebp
+  100933: 83 ec 10                     	subl	$0x10, %esp
+  100936: 8d 45 0c                     	leal	0xc(%ebp), %eax
+  100939: 50                           	pushl	%eax
+  10093a: ff 75 08                     	pushl	0x8(%ebp)
+  10093d: e8 9e fc ff ff               	calll	0x1005e0 <kvprintf>
+  100942: 83 c4 10                     	addl	$0x10, %esp
+  100945: c9                           	leave
+  100946: c3                           	retl
+  100947: 66 90                        	nop
+  100949: 66 90                        	nop
+  10094b: 66 90                        	nop
+  10094d: 66 90                        	nop
+  10094f: 90                           	nop
+
+00100950 <gdt_init>:
+  100950: 55                           	pushl	%ebp
+  100951: 89 e5                        	movl	%esp, %ebp
+  100953: 83 ec 0c                     	subl	$0xc, %esp
+  100956: 68 4c 13 10 00               	pushl	$0x10134c               # imm = 0x10134C
+  10095b: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100960: 6a 01                        	pushl	$0x1
+  100962: e8 39 fe ff ff               	calll	0x1007a0 <klog>
+  100967: 68 40 60 10 00               	pushl	$0x106040               # imm = 0x106040
+  10096c: b8 27 00 00 00               	movl	$0x27, %eax
+  100971: 68 c1 11 10 00               	pushl	$0x1011c1               # imm = 0x1011C1
+  100976: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  10097b: 6a 00                        	pushl	$0x0
+  10097d: 66 a3 20 60 10 00            	movw	%ax, 0x106020
+  100983: c7 05 22 60 10 00 40 60 10 00	movl	$0x106040, 0x106022     # imm = 0x106040
+  10098d: e8 0e fe ff ff               	calll	0x1007a0 <klog>
+  100992: 0f b7 05 20 60 10 00         	movzwl	0x106020, %eax
+  100999: 83 c4 20                     	addl	$0x20, %esp
+  10099c: 83 c0 01                     	addl	$0x1, %eax
+  10099f: 50                           	pushl	%eax
+  1009a0: 68 d8 11 10 00               	pushl	$0x1011d8               # imm = 0x1011D8
+  1009a5: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  1009aa: 6a 00                        	pushl	$0x0
+  1009ac: e8 ef fd ff ff               	calll	0x1007a0 <klog>
+  1009b1: 6a 00                        	pushl	$0x0
+  1009b3: 6a 00                        	pushl	$0x0
+  1009b5: 6a 00                        	pushl	$0x0
+  1009b7: 6a 00                        	pushl	$0x0
+  1009b9: 6a 00                        	pushl	$0x0
+  1009bb: 68 74 13 10 00               	pushl	$0x101374               # imm = 0x101374
+  1009c0: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  1009c5: 6a 00                        	pushl	$0x0
+  1009c7: c7 05 40 60 10 00 00 00 00 00	movl	$0x0, 0x106040
+  1009d1: c7 05 44 60 10 00 00 00 00 00	movl	$0x0, 0x106044
+  1009db: e8 c0 fd ff ff               	calll	0x1007a0 <klog>
+  1009e0: 83 c4 2c                     	addl	$0x2c, %esp
+  1009e3: 68 ec 11 10 00               	pushl	$0x1011ec               # imm = 0x1011EC
+  1009e8: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  1009ed: 6a 00                        	pushl	$0x0
+  1009ef: e8 ac fd ff ff               	calll	0x1007a0 <klog>
+  1009f4: 68 cf 00 00 00               	pushl	$0xcf
+  1009f9: 68 9a 00 00 00               	pushl	$0x9a
+  1009fe: 6a ff                        	pushl	$-0x1
+  100a00: 6a 00                        	pushl	$0x0
+  100a02: 6a 01                        	pushl	$0x1
+  100a04: 68 74 13 10 00               	pushl	$0x101374               # imm = 0x101374
+  100a09: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100a0e: 6a 00                        	pushl	$0x0
+  100a10: c7 05 48 60 10 00 ff ff 00 00	movl	$0xffff, 0x106048       # imm = 0xFFFF
+  100a1a: c7 05 4c 60 10 00 00 9a cf 00	movl	$0xcf9a00, 0x10604c     # imm = 0xCF9A00
+  100a24: e8 77 fd ff ff               	calll	0x1007a0 <klog>
+  100a29: 83 c4 2c                     	addl	$0x2c, %esp
+  100a2c: 68 b0 13 10 00               	pushl	$0x1013b0               # imm = 0x1013B0
+  100a31: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100a36: 6a 00                        	pushl	$0x0
+  100a38: e8 63 fd ff ff               	calll	0x1007a0 <klog>
+  100a3d: 68 cf 00 00 00               	pushl	$0xcf
+  100a42: 68 92 00 00 00               	pushl	$0x92
+  100a47: 6a ff                        	pushl	$-0x1
+  100a49: 6a 00                        	pushl	$0x0
+  100a4b: 6a 02                        	pushl	$0x2
+  100a4d: 68 74 13 10 00               	pushl	$0x101374               # imm = 0x101374
+  100a52: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100a57: 6a 00                        	pushl	$0x0
+  100a59: c7 05 50 60 10 00 ff ff 00 00	movl	$0xffff, 0x106050       # imm = 0xFFFF
+  100a63: c7 05 54 60 10 00 00 92 cf 00	movl	$0xcf9200, 0x106054     # imm = 0xCF9200
+  100a6d: e8 2e fd ff ff               	calll	0x1007a0 <klog>
+  100a72: 83 c4 2c                     	addl	$0x2c, %esp
+  100a75: 68 d4 13 10 00               	pushl	$0x1013d4               # imm = 0x1013D4
+  100a7a: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100a7f: 6a 00                        	pushl	$0x0
+  100a81: e8 1a fd ff ff               	calll	0x1007a0 <klog>
+  100a86: 68 cf 00 00 00               	pushl	$0xcf
+  100a8b: 68 fa 00 00 00               	pushl	$0xfa
+  100a90: 6a ff                        	pushl	$-0x1
+  100a92: 6a 00                        	pushl	$0x0
+  100a94: 6a 03                        	pushl	$0x3
+  100a96: 68 74 13 10 00               	pushl	$0x101374               # imm = 0x101374
+  100a9b: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100aa0: 6a 00                        	pushl	$0x0
+  100aa2: c7 05 58 60 10 00 ff ff 00 00	movl	$0xffff, 0x106058       # imm = 0xFFFF
+  100aac: c7 05 5c 60 10 00 00 fa cf 00	movl	$0xcffa00, 0x10605c     # imm = 0xCFFA00
+  100ab6: e8 e5 fc ff ff               	calll	0x1007a0 <klog>
+  100abb: 83 c4 2c                     	addl	$0x2c, %esp
+  100abe: 68 f8 13 10 00               	pushl	$0x1013f8               # imm = 0x1013F8
+  100ac3: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100ac8: 6a 00                        	pushl	$0x0
+  100aca: e8 d1 fc ff ff               	calll	0x1007a0 <klog>
+  100acf: 68 cf 00 00 00               	pushl	$0xcf
+  100ad4: 68 f2 00 00 00               	pushl	$0xf2
+  100ad9: 6a ff                        	pushl	$-0x1
+  100adb: 6a 00                        	pushl	$0x0
+  100add: 6a 04                        	pushl	$0x4
+  100adf: 68 74 13 10 00               	pushl	$0x101374               # imm = 0x101374
+  100ae4: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100ae9: 6a 00                        	pushl	$0x0
+  100aeb: c7 05 60 60 10 00 ff ff 00 00	movl	$0xffff, 0x106060       # imm = 0xFFFF
+  100af5: c7 05 64 60 10 00 00 f2 cf 00	movl	$0xcff200, 0x106064     # imm = 0xCFF200
+  100aff: e8 9c fc ff ff               	calll	0x1007a0 <klog>
+  100b04: 83 c4 2c                     	addl	$0x2c, %esp
+  100b07: 68 1c 14 10 00               	pushl	$0x10141c               # imm = 0x10141C
+  100b0c: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100b11: 6a 00                        	pushl	$0x0
+  100b13: e8 88 fc ff ff               	calll	0x1007a0 <klog>
+  100b18: 83 c4 0c                     	addl	$0xc, %esp
+  100b1b: 68 05 12 10 00               	pushl	$0x101205               # imm = 0x101205
+  100b20: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100b25: 6a 01                        	pushl	$0x1
+  100b27: e8 74 fc ff ff               	calll	0x1007a0 <klog>
+  100b2c: c7 04 24 20 60 10 00         	movl	$0x106020, (%esp)       # imm = 0x106020
+  100b33: e8 e2 f4 ff ff               	calll	0x10001a <gdt_flush>
+  100b38: 83 c4 0c                     	addl	$0xc, %esp
+  100b3b: 68 40 14 10 00               	pushl	$0x101440               # imm = 0x101440
+  100b40: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100b45: 6a 01                        	pushl	$0x1
+  100b47: e8 54 fc ff ff               	calll	0x1007a0 <klog>
+  100b4c: 83 c4 10                     	addl	$0x10, %esp
+  100b4f: c9                           	leave
+  100b50: c3                           	retl
+  100b51: 8d b4 26 00 00 00 00         	leal	(%esi,%eiz), %esi
+  100b58: 2e 8d b4 26 00 00 00 00      	leal	%cs:(%esi,%eiz), %esi
+
+00100b60 <gdt_set_gate>:
+  100b60: 55                           	pushl	%ebp
+  100b61: 89 e5                        	movl	%esp, %ebp
+  100b63: 57                           	pushl	%edi
+  100b64: 56                           	pushl	%esi
+  100b65: 53                           	pushl	%ebx
+  100b66: 83 ec 1c                     	subl	$0x1c, %esp
+  100b69: 8b 45 08                     	movl	0x8(%ebp), %eax
+  100b6c: 8b 4d 0c                     	movl	0xc(%ebp), %ecx
+  100b6f: 8b 7d 10                     	movl	0x10(%ebp), %edi
+  100b72: 8b 5d 14                     	movl	0x14(%ebp), %ebx
+  100b75: 8b 75 18                     	movl	0x18(%ebp), %esi
+  100b78: 83 f8 04                     	cmpl	$0x4, %eax
+  100b7b: 77 73                        	ja	0x100bf0 <gdt_set_gate+0x90>
+  100b7d: 89 ca                        	movl	%ecx, %edx
+  100b7f: 88 1c c5 45 60 10 00         	movb	%bl, 0x106045(,%eax,8)
+  100b86: 0f b6 db                     	movzbl	%bl, %ebx
+  100b89: c1 ea 10                     	shrl	$0x10, %edx
+  100b8c: 66 89 3c c5 40 60 10 00      	movw	%di, 0x106040(,%eax,8)
+  100b94: 88 14 c5 44 60 10 00         	movb	%dl, 0x106044(,%eax,8)
+  100b9b: 89 ca                        	movl	%ecx, %edx
+  100b9d: c1 ea 18                     	shrl	$0x18, %edx
+  100ba0: 66 89 0c c5 42 60 10 00      	movw	%cx, 0x106042(,%eax,8)
+  100ba8: 88 14 c5 47 60 10 00         	movb	%dl, 0x106047(,%eax,8)
+  100baf: 89 fa                        	movl	%edi, %edx
+  100bb1: c1 ea 10                     	shrl	$0x10, %edx
+  100bb4: 83 e2 0f                     	andl	$0xf, %edx
+  100bb7: 88 55 e7                     	movb	%dl, -0x19(%ebp)
+  100bba: 89 f2                        	movl	%esi, %edx
+  100bbc: 83 e2 f0                     	andl	$-0x10, %edx
+  100bbf: 0a 55 e7                     	orb	-0x19(%ebp), %dl
+  100bc2: 88 14 c5 46 60 10 00         	movb	%dl, 0x106046(,%eax,8)
+  100bc9: 89 f2                        	movl	%esi, %edx
+  100bcb: 0f b6 f2                     	movzbl	%dl, %esi
+  100bce: 56                           	pushl	%esi
+  100bcf: 53                           	pushl	%ebx
+  100bd0: 57                           	pushl	%edi
+  100bd1: 51                           	pushl	%ecx
+  100bd2: 50                           	pushl	%eax
+  100bd3: 68 74 13 10 00               	pushl	$0x101374               # imm = 0x101374
+  100bd8: 68 bd 11 10 00               	pushl	$0x1011bd               # imm = 0x1011BD
+  100bdd: 6a 00                        	pushl	$0x0
+  100bdf: e8 bc fb ff ff               	calll	0x1007a0 <klog>
+  100be4: 83 c4 20                     	addl	$0x20, %esp
+  100be7: 8d 65 f4                     	leal	-0xc(%ebp), %esp
+  100bea: 5b                           	popl	%ebx
+  100beb: 5e                           	popl	%esi
+  100bec: 5f                           	popl	%edi
+  100bed: 5d                           	popl	%ebp
+  100bee: c3                           	retl
+  100bef: 90                           	nop
+  100bf0: 89 45 14                     	movl	%eax, 0x14(%ebp)
+  100bf3: c7 45 10 18 12 10 00         	movl	$0x101218, 0x10(%ebp)   # imm = 0x101218
+  100bfa: c7 45 0c bd 11 10 00         	movl	$0x1011bd, 0xc(%ebp)    # imm = 0x1011BD
+  100c01: c7 45 08 03 00 00 00         	movl	$0x3, 0x8(%ebp)
+  100c08: 8d 65 f4                     	leal	-0xc(%ebp), %esp
+  100c0b: 5b                           	popl	%ebx
+  100c0c: 5e                           	popl	%esi
+  100c0d: 5f                           	popl	%edi
+  100c0e: 5d                           	popl	%ebp
+  100c0f: e9 8c fb ff ff               	jmp	0x1007a0 <klog>
+
+Disassembly of section .rodata:
+
+00101000 <log_level_colors>:
+  101000: 08 07                        	orb	%al, (%edi)
+  101002: 0e                           	pushl	%cs
+  101003: 0c 0f                        	orb	$0xf, %al
+  101005: 00 00                        	addb	%al, (%eax)
+  101007: 00 a5 11 10 00 ab            	addb	%ah, -0x54ffefef(%ebp)
+
+00101008 <log_level_names>:
+  101008: a5                           	movsl	(%esi), %es:(%edi)
+  101009: 11 10                        	adcl	%edx, (%eax)
+  10100b: 00 ab 11 10 00 b1            	addb	%ch, -0x4effefef(%ebx)
+  101011: 11 10                        	adcl	%edx, (%eax)
+  101013: 00 b7 11 10 00 64            	addb	%dh, 0x64001011(%edi)
+  101019: 11 10                        	adcl	%edx, (%eax)
+  10101b: 00                           	<unknown>
+
+Disassembly of section .rodata.str1.1:
+
+0010101c <.rodata.str1.1>:
+  10101c: 47                           	incl	%edi
+  10101d: 6c                           	insb	%dx, %es:(%edi)
+  10101e: 61                           	popal
+  10101f: 73 67                        	jae	0x101088 <.rodata.str1.1+0x6c>
+  101021: 6f                           	outsl	(%esi), %dx
+  101022: 77 20                        	ja	0x101044 <.rodata.str1.1+0x28>
+  101024: 6b 65 72 6e                  	imull	$0x6e, 0x72(%ebp), %esp
+  101028: 65 6c                        	insb	%dx, %es:(%edi)
+  10102a: 20 73 74                     	andb	%dh, 0x74(%ebx)
+  10102d: 61                           	popal
+  10102e: 72 74                        	jb	0x1010a4 <.rodata.str1.1+0x88>
+  101030: 69 6e 67 20 75 70 2e         	imull	$0x2e707520, 0x67(%esi), %ebp # imm = 0x2E707520
+  101037: 2e 2e 00 42 4f               	addb	%al, %cs:0x4f(%edx)
+  10103c: 4f                           	decl	%edi
+  10103d: 54                           	pushl	%esp
+  10103e: 00 56 47                     	addb	%dl, 0x47(%esi)
+  101041: 41                           	incl	%ecx
+  101042: 00 53 74                     	addb	%dl, 0x74(%ebx)
+  101045: 61                           	popal
+  101046: 63 6b 20                     	arpl	%bp, 0x20(%ebx)
+  101049: 63 6f 6e                     	arpl	%bp, 0x6e(%edi)
+  10104c: 66 69 67 75 72 65            	imulw	$0x6572, 0x75(%edi), %sp # imm = 0x6572
+  101052: 64 20 61 74                  	andb	%ah, %fs:0x74(%ecx)
+  101056: 20 25 78 00 4d 45            	andb	%ah, 0x454d0078
+  10105c: 4d                           	decl	%ebp
+  10105d: 00 54 68 69                  	addb	%dl, 0x69(%eax,%ebp,2)
+  101061: 73 20                        	jae	0x101083 <.rodata.str1.1+0x67>
+  101063: 69 73 20 61 20 64 65         	imull	$0x65642061, 0x20(%ebx), %esi # imm = 0x65642061
+  10106a: 62 75 67                     	bound	%esi, 0x67(%ebp)
+  10106d: 20 6d 65                     	andb	%ch, 0x65(%ebp)
+  101070: 73 73                        	jae	0x1010e5 <.rodata.str1.1+0xc9>
+  101072: 61                           	popal
+  101073: 67 65 00 54 45               	addb	%dl, %gs:0x45(%si)
+  101078: 53                           	pushl	%ebx
+  101079: 54                           	pushl	%esp
+  10107a: 00 54 68 69                  	addb	%dl, 0x69(%eax,%ebp,2)
+  10107e: 73 20                        	jae	0x1010a0 <.rodata.str1.1+0x84>
+  101080: 69 73 20 61 6e 20 69         	imull	$0x69206e61, 0x20(%ebx), %esi # imm = 0x69206E61
+  101087: 6e                           	outsb	(%esi), %dx
+  101088: 66 6f                        	outsw	(%esi), %dx
+  10108a: 20 6d 65                     	andb	%ch, 0x65(%ebp)
+  10108d: 73 73                        	jae	0x101102 <.rodata.str1.1+0xe6>
+  10108f: 61                           	popal
+  101090: 67 65 00 54 68               	addb	%dl, %gs:0x68(%si)
+  101095: 69 73 20 69 73 20 61         	imull	$0x61207369, 0x20(%ebx), %esi # imm = 0x61207369
+  10109c: 20 77 61                     	andb	%dh, 0x61(%edi)
+  10109f: 72 6e                        	jb	0x10110f <.rodata.str1.1+0xf3>
+  1010a1: 69 6e 67 20 6d 65 73         	imull	$0x73656d20, 0x67(%esi), %ebp # imm = 0x73656D20
+  1010a8: 73 61                        	jae	0x10110b <.rodata.str1.1+0xef>
+  1010aa: 67 65 00 54 68               	addb	%dl, %gs:0x68(%si)
+  1010af: 69 73 20 69 73 20 61         	imull	$0x61207369, 0x20(%ebx), %esi # imm = 0x61207369
+  1010b6: 6e                           	outsb	(%esi), %dx
+  1010b7: 20 65 72                     	andb	%ah, 0x72(%ebp)
+  1010ba: 72 6f                        	jb	0x10112b <.rodata.str1.1+0x10f>
+  1010bc: 72 20                        	jb	0x1010de <.rodata.str1.1+0xc2>
+  1010be: 6d                           	insl	%dx, %es:(%edi)
+  1010bf: 65 73 73                     	jae	0x101135 <.rodata.str1.1+0x119>
+  1010c2: 61                           	popal
+  1010c3: 67 65 00 0a                  	addb	%cl, %gs:(%bp,%si)
+  1010c7: 4b                           	decl	%ebx
+  1010c8: 65 72 6e                     	jb	0x101139 <.rodata.str1.1+0x11d>
+  1010cb: 65 6c                        	insb	%dx, %es:(%edi)
+  1010cd: 20 53 74                     	andb	%dl, 0x74(%ebx)
+  1010d0: 61                           	popal
+  1010d1: 74 75                        	je	0x101148 <.rodata.str1.1+0x12c>
+  1010d3: 73 3a                        	jae	0x10110f <.rodata.str1.1+0xf3>
+  1010d5: 20 52 55                     	andb	%dl, 0x55(%edx)
+  1010d8: 4e                           	decl	%esi
+  1010d9: 4e                           	decl	%esi
+  1010da: 49                           	decl	%ecx
+  1010db: 4e                           	decl	%esi
+  1010dc: 47                           	incl	%edi
+  1010dd: 0a 00                        	orb	(%eax), %al
+  1010df: 45                           	incl	%ebp
+  1010e0: 6e                           	outsb	(%esi), %dx
+  1010e1: 74 65                        	je	0x101148 <.rodata.str1.1+0x12c>
+  1010e3: 72 69                        	jb	0x10114e <.rodata.str1.1+0x132>
+  1010e5: 6e                           	outsb	(%esi), %dx
+  1010e6: 67 20 6d 61                  	andb	%ch, 0x61(%di)
+  1010ea: 69 6e 20 6b 65 72 6e         	imull	$0x6e72656b, 0x20(%esi), %ebp # imm = 0x6E72656B
+  1010f1: 65 6c                        	insb	%dx, %es:(%edi)
+  1010f3: 20 6c 6f 6f                  	andb	%ch, 0x6f(%edi,%ebp,2)
+  1010f7: 70 2e                        	jo	0x101127 <.rodata.str1.1+0x10b>
+  1010f9: 2e 2e 00 53 59               	addb	%dl, %cs:0x59(%ebx)
+  1010fe: 53                           	pushl	%ebx
+  1010ff: 00 59 6f                     	addb	%bl, 0x6f(%ecx)
+  101102: 75 20                        	jne	0x101124 <.rodata.str1.1+0x108>
+  101104: 73 68                        	jae	0x10116e <.rodata.str1.1+0x152>
+  101106: 6f                           	outsl	(%esi), %dx
+  101107: 75 6c                        	jne	0x101175 <.rodata.str1.1+0x159>
+  101109: 64 20 73 65                  	andb	%dh, %fs:0x65(%ebx)
+  10110d: 65 20 74 68 69               	andb	%dh, %gs:0x69(%eax,%ebp,2)
+  101112: 73 20                        	jae	0x101134 <.rodata.str1.1+0x118>
+  101114: 77 61                        	ja	0x101177 <.rodata.str1.1+0x15b>
+  101116: 72 6e                        	jb	0x101186 <.rodata.str1.1+0x16a>
+  101118: 69 6e 67 00 0a 0a 2a         	imull	$0x2a0a0a00, 0x67(%esi), %ebp # imm = 0x2A0A0A00
+  10111f: 2a 2a                        	subb	(%edx), %ch
+  101121: 20 4b 45                     	andb	%cl, 0x45(%ebx)
+  101124: 52                           	pushl	%edx
+  101125: 4e                           	decl	%esi
+  101126: 45                           	incl	%ebp
+  101127: 4c                           	decl	%esp
+  101128: 20 50 41                     	andb	%dl, 0x41(%eax)
+  10112b: 4e                           	decl	%esi
+  10112c: 49                           	decl	%ecx
+  10112d: 43                           	incl	%ebx
+  10112e: 20 2a                        	andb	%ch, (%edx)
+  101130: 2a 2a                        	subb	(%edx), %ch
+  101132: 0a 00                        	orb	(%eax), %al
+  101134: 0a 0a                        	orb	(%edx), %cl
+  101136: 53                           	pushl	%ebx
+  101137: 79 73                        	jns	0x1011ac <.rodata.str1.1+0x190>
+  101139: 74 65                        	je	0x1011a0 <.rodata.str1.1+0x184>
+  10113b: 6d                           	insl	%dx, %es:(%edi)
+  10113c: 20 6d 75                     	andb	%ch, 0x75(%ebp)
+  10113f: 73 74                        	jae	0x1011b5 <.rodata.str1.1+0x199>
+  101141: 20 62 65                     	andb	%ah, 0x65(%edx)
+  101144: 20 72 65                     	andb	%dh, 0x65(%edx)
+  101147: 73 74                        	jae	0x1011bd <.rodata.str1.1+0x1a1>
+  101149: 61                           	popal
+  10114a: 72 74                        	jb	0x1011c0 <.rodata.str1.1+0x1a4>
+  10114c: 65 64 2e 0a 00               	orb	%cs:(%eax), %al
+  101151: 30 31                        	xorb	%dh, (%ecx)
+  101153: 32 33                        	xorb	(%ebx), %dh
+  101155: 34 35                        	xorb	$0x35, %al
+  101157: 36 37                        	aaa
+  101159: 38 39                        	cmpb	%bh, (%ecx)
+  10115b: 61                           	popal
+  10115c: 62 63 64                     	bound	%esp, 0x64(%ebx)
+  10115f: 65 66 00 5b 00               	addb	%bl, %gs:(%ebx)
+  101164: 50                           	pushl	%eax
+  101165: 41                           	incl	%ecx
+  101166: 4e                           	decl	%esi
+  101167: 49                           	decl	%ecx
+  101168: 43                           	incl	%ebx
+  101169: 00 5d 20                     	addb	%bl, 0x20(%ebp)
+  10116c: 00 3a                        	addb	%bh, (%edx)
+  10116e: 20 00                        	andb	%al, (%eax)
+  101170: 50                           	pushl	%eax
+  101171: 41                           	incl	%ecx
+  101172: 4e                           	decl	%esi
+  101173: 49                           	decl	%ecx
+  101174: 43                           	incl	%ebx
+  101175: 20 6c 6f 67                  	andb	%ch, 0x67(%edi,%ebp,2)
+  101179: 20 6d 65                     	andb	%ch, 0x65(%ebp)
+  10117c: 73 73                        	jae	0x1011f1 <.rodata.str1.1+0x1d5>
+  10117e: 61                           	popal
+  10117f: 67 65 20 74 72               	andb	%dh, %gs:0x72(%si)
+  101184: 69 67 67 65 72 65 64         	imull	$0x64657265, 0x67(%edi), %esp # imm = 0x64657265
+  10118b: 00 4b 4c                     	addb	%cl, 0x4c(%ebx)
+  10118e: 4f                           	decl	%edi
+  10118f: 47                           	incl	%edi
+  101190: 00 4c 6f 67                  	addb	%cl, 0x67(%edi,%ebp,2)
+  101194: 20 6c 65 76                  	andb	%ch, 0x76(%ebp,%eiz,2)
+  101198: 65 6c                        	insb	%dx, %es:(%edi)
+  10119a: 20 73 65                     	andb	%dh, 0x65(%ebx)
+  10119d: 74 20                        	je	0x1011bf <.rodata.str1.1+0x1a3>
+  10119f: 74 6f                        	je	0x101210 <.rodata.str1.1+0x1f4>
+  1011a1: 20 25 73 00 44 45            	andb	%ah, 0x45440073
+  1011a7: 42                           	incl	%edx
+  1011a8: 55                           	pushl	%ebp
+  1011a9: 47                           	incl	%edi
+  1011aa: 00 49 4e                     	addb	%cl, 0x4e(%ecx)
+  1011ad: 46                           	incl	%esi
+  1011ae: 4f                           	decl	%edi
+  1011af: 20 00                        	andb	%al, (%eax)
+  1011b1: 57                           	pushl	%edi
+  1011b2: 41                           	incl	%ecx
+  1011b3: 52                           	pushl	%edx
+  1011b4: 4e                           	decl	%esi
+  1011b5: 20 00                        	andb	%al, (%eax)
+  1011b7: 45                           	incl	%ebp
+  1011b8: 52                           	pushl	%edx
+  1011b9: 52                           	pushl	%edx
+  1011ba: 4f                           	decl	%edi
+  1011bb: 52                           	pushl	%edx
+  1011bc: 00 47 44                     	addb	%al, 0x44(%edi)
+  1011bf: 54                           	pushl	%esp
+  1011c0: 00 47 44                     	addb	%al, 0x44(%edi)
+  1011c3: 54                           	pushl	%esp
+  1011c4: 20 62 61                     	andb	%ah, 0x61(%edx)
+  1011c7: 73 65                        	jae	0x10122e <.rodata.str1.1+0x212>
+  1011c9: 20 61 64                     	andb	%ah, 0x64(%ecx)
+  1011cc: 64 72 65                     	jb	0x101234 <.rodata.str1.1+0x218>
+  1011cf: 73 73                        	jae	0x101244 <FLAGS+0x101241>
+  1011d1: 3a 20                        	cmpb	(%eax), %ah
+  1011d3: 30 78 25                     	xorb	%bh, 0x25(%eax)
+  1011d6: 78 00                        	js	0x1011d8 <.rodata.str1.1+0x1bc>
+  1011d8: 47                           	incl	%edi
+  1011d9: 44                           	incl	%esp
+  1011da: 54                           	pushl	%esp
+  1011db: 20 6c 69 6d                  	andb	%ch, 0x6d(%ecx,%ebp,2)
+  1011df: 69 74 3a 20 25 64 20 62      	imull	$0x62206425, 0x20(%edx,%edi), %esi # imm = 0x62206425
+  1011e7: 79 74                        	jns	0x10125d <FLAGS+0x10125a>
+  1011e9: 65 73 00                     	jae	0x1011ec <.rodata.str1.1+0x1d0>
+  1011ec: 45                           	incl	%ebp
+  1011ed: 6e                           	outsb	(%esi), %dx
+  1011ee: 74 72                        	je	0x101262 <FLAGS+0x10125f>
+  1011f0: 79 20                        	jns	0x101212 <.rodata.str1.1+0x1f6>
+  1011f2: 30 3a                        	xorb	%bh, (%edx)
+  1011f4: 20 4e 75                     	andb	%cl, 0x75(%esi)
+  1011f7: 6c                           	insb	%dx, %es:(%edi)
+  1011f8: 6c                           	insb	%dx, %es:(%edi)
+  1011f9: 20 64 65 73                  	andb	%ah, 0x73(%ebp,%eiz,2)
+  1011fd: 63 72 69                     	arpl	%si, 0x69(%edx)
+  101200: 70 74                        	jo	0x101276 <FLAGS+0x101273>
+  101202: 6f                           	outsl	(%esi), %dx
+  101203: 72 00                        	jb	0x101205 <.rodata.str1.1+0x1e9>
+  101205: 4c                           	decl	%esp
+  101206: 6f                           	outsl	(%esi), %dx
+  101207: 61                           	popal
+  101208: 64 69 6e 67 20 6e 65 77      	imull	$0x77656e20, %fs:0x67(%esi), %ebp # imm = 0x77656E20
+  101210: 20 47 44                     	andb	%al, 0x44(%edi)
+  101213: 54                           	pushl	%esp
+  101214: 2e 2e 2e 00 49 6e            	addb	%cl, %cs:0x6e(%ecx)
+  10121a: 76 61                        	jbe	0x10127d <FLAGS+0x10127a>
+  10121c: 6c                           	insb	%dx, %es:(%edi)
+  10121d: 69 64 20 47 44 54 20 65      	imull	$0x65205444, 0x47(%eax,%eiz), %esp # imm = 0x65205444
+  101225: 6e                           	outsb	(%esi), %dx
+  101226: 74 72                        	je	0x10129a <FLAGS+0x101297>
+  101228: 79 20                        	jns	0x10124a <FLAGS+0x101247>
+  10122a: 6e                           	outsb	(%esi), %dx
+  10122b: 75 6d                        	jne	0x10129a <FLAGS+0x101297>
+  10122d: 62 65 72                     	bound	%esp, 0x72(%ebp)
+  101230: 3a 20                        	cmpb	(%eax), %ah
+  101232: 25                           	<unknown>
+  101233: 64 00                        	<unknown>
+
+Disassembly of section .rodata.str1.4:
+
+00101238 <.rodata.str1.4>:
+  101238: 54                           	pushl	%esp
+  101239: 65 78 74                     	js	0x1012b0 <.rodata.str1.4+0x78>
+  10123c: 20 6d 6f                     	andb	%ch, 0x6f(%ebp)
+  10123f: 64 65 20 69 6e               	andb	%ch, %gs:0x6e(%ecx)
+  101244: 69 74 69 61 6c 69 7a 65      	imull	$0x657a696c, 0x61(%ecx,%ebp,2), %esi # imm = 0x657A696C
+  10124c: 64 20 73 75                  	andb	%dh, %fs:0x75(%ebx)
+  101250: 63 63 65                     	arpl	%sp, 0x65(%ebx)
+  101253: 73 73                        	jae	0x1012c8 <.rodata.str1.4+0x90>
+  101255: 66 75 6c                     	jne	0x1012c4 <.rodata.str1.4+0x8c>
+  101258: 6c                           	insb	%dx, %es:(%edi)
+  101259: 79 00                        	jns	0x10125b <.rodata.str1.4+0x23>
+  10125b: 00 00                        	addb	%al, (%eax)
+  10125d: 00 00                        	addb	%al, (%eax)
+  10125f: 00 4b 65                     	addb	%cl, 0x65(%ebx)
+  101262: 72 6e                        	jb	0x1012d2 <.rodata.str1.4+0x9a>
+  101264: 65 6c                        	insb	%dx, %es:(%edi)
+  101266: 20 69 6e                     	andb	%ch, 0x6e(%ecx)
+  101269: 69 74 69 61 6c 69 7a 61      	imull	$0x617a696c, 0x61(%ecx,%ebp,2), %esi # imm = 0x617A696C
+  101271: 74 69                        	je	0x1012dc <.rodata.str1.4+0xa4>
+  101273: 6f                           	outsl	(%esi), %dx
+  101274: 6e                           	outsb	(%esi), %dx
+  101275: 20 63 6f                     	andb	%ah, 0x6f(%ebx)
+  101278: 6d                           	insl	%dx, %es:(%edi)
+  101279: 70 6c                        	jo	0x1012e7 <.rodata.str1.4+0xaf>
+  10127b: 65 74 65                     	je	0x1012e3 <.rodata.str1.4+0xab>
+  10127e: 00 00                        	addb	%al, (%eax)
+  101280: 0a 43 68                     	orb	0x68(%ebx), %al
+  101283: 61                           	popal
+  101284: 6e                           	outsb	(%esi), %dx
+  101285: 67 69 6e 67 20 6c 6f 67      	imull	$0x676f6c20, 0x67(%bp), %ebp # imm = 0x676F6C20
+  10128d: 20 6c 65 76                  	andb	%ch, 0x76(%ebp,%eiz,2)
+  101291: 65 6c                        	insb	%dx, %es:(%edi)
+  101293: 20 74 6f 20                  	andb	%dh, 0x20(%edi,%ebp,2)
+  101297: 57                           	pushl	%edi
+  101298: 41                           	incl	%ecx
+  101299: 52                           	pushl	%edx
+  10129a: 4e                           	decl	%esi
+  10129b: 20 28                        	andb	%ch, (%eax)
+  10129d: 68 69 64 69 6e               	pushl	$0x6e696469             # imm = 0x6E696469
+  1012a2: 67 20 44 45                  	andb	%al, 0x45(%si)
+  1012a6: 42                           	incl	%edx
+  1012a7: 55                           	pushl	%ebp
+  1012a8: 47                           	incl	%edi
+  1012a9: 2f                           	das
+  1012aa: 49                           	decl	%ecx
+  1012ab: 4e                           	decl	%esi
+  1012ac: 46                           	incl	%esi
+  1012ad: 4f                           	decl	%edi
+  1012ae: 29 3a                        	subl	%edi, (%edx)
+  1012b0: 0a 00                        	orb	(%eax), %al
+  1012b2: 00 00                        	addb	%al, (%eax)
+  1012b4: 59                           	popl	%ecx
+  1012b5: 6f                           	outsl	(%esi), %dx
+  1012b6: 75 20                        	jne	0x1012d8 <.rodata.str1.4+0xa0>
+  1012b8: 73 68                        	jae	0x101322 <.rodata.str1.4+0xea>
+  1012ba: 6f                           	outsl	(%esi), %dx
+  1012bb: 75 6c                        	jne	0x101329 <.rodata.str1.4+0xf1>
+  1012bd: 64 6e                        	outsb	%fs:(%esi), %dx
+  1012bf: 27                           	daa
+  1012c0: 74 20                        	je	0x1012e2 <.rodata.str1.4+0xaa>
+  1012c2: 73 65                        	jae	0x101329 <.rodata.str1.4+0xf1>
+  1012c4: 65 20 74 68 69               	andb	%dh, %gs:0x69(%eax,%ebp,2)
+  1012c9: 73 20                        	jae	0x1012eb <.rodata.str1.4+0xb3>
+  1012cb: 64 65 62 75 67               	bound	%esi, %gs:0x67(%ebp)
+  1012d0: 20 6d 65                     	andb	%ch, 0x65(%ebp)
+  1012d3: 73 73                        	jae	0x101348 <.rodata.str1.4+0x110>
+  1012d5: 61                           	popal
+  1012d6: 67 65 00 00                  	addb	%al, %gs:(%bx,%si)
+  1012da: 00 00                        	addb	%al, (%eax)
+  1012dc: 59                           	popl	%ecx
+  1012dd: 6f                           	outsl	(%esi), %dx
+  1012de: 75 20                        	jne	0x101300 <.rodata.str1.4+0xc8>
+  1012e0: 73 68                        	jae	0x10134a <.rodata.str1.4+0x112>
+  1012e2: 6f                           	outsl	(%esi), %dx
+  1012e3: 75 6c                        	jne	0x101351 <.rodata.str1.4+0x119>
+  1012e5: 64 6e                        	outsb	%fs:(%esi), %dx
+  1012e7: 27                           	daa
+  1012e8: 74 20                        	je	0x10130a <.rodata.str1.4+0xd2>
+  1012ea: 73 65                        	jae	0x101351 <.rodata.str1.4+0x119>
+  1012ec: 65 20 74 68 69               	andb	%dh, %gs:0x69(%eax,%ebp,2)
+  1012f1: 73 20                        	jae	0x101313 <.rodata.str1.4+0xdb>
+  1012f3: 69 6e 66 6f 20 6d 65         	imull	$0x656d206f, 0x66(%esi), %ebp # imm = 0x656D206F
+  1012fa: 73 73                        	jae	0x10136f <.rodata.str1.4+0x137>
+  1012fc: 61                           	popal
+  1012fd: 67 65 00 53 79               	addb	%dl, %gs:0x79(%bp,%di)
+  101302: 73 74                        	jae	0x101378 <.rodata.str1.4+0x140>
+  101304: 65 6d                        	insl	%dx, %es:(%edi)
+  101306: 20 68 61                     	andb	%ch, 0x61(%eax)
+  101309: 6c                           	insb	%dx, %es:(%edi)
+  10130a: 74 65                        	je	0x101371 <.rodata.str1.4+0x139>
+  10130c: 64 20 64 75 65               	andb	%ah, %fs:0x65(%ebp,%esi,2)
+  101311: 20 74 6f 20                  	andb	%dh, 0x20(%edi,%ebp,2)
+  101315: 63 72 69                     	arpl	%si, 0x69(%edx)
+  101318: 74 69                        	je	0x101383 <.rodata.str1.4+0x14b>
+  10131a: 63 61 6c                     	arpl	%sp, 0x6c(%ecx)
+  10131d: 20 65 72                     	andb	%ah, 0x72(%ebp)
+  101320: 72 6f                        	jb	0x101391 <.rodata.str1.4+0x159>
+  101322: 72 3a                        	jb	0x10135e <.rodata.str1.4+0x126>
+  101324: 0a 00                        	orb	(%eax), %al
+  101326: 00 00                        	addb	%al, (%eax)
+  101328: 4b                           	decl	%ebx
+  101329: 65 72 6e                     	jb	0x10139a <.rodata.str1.4+0x162>
+  10132c: 65 6c                        	insb	%dx, %es:(%edi)
+  10132e: 20 6c 6f 67                  	andb	%ch, 0x67(%edi,%ebp,2)
+  101332: 67 69 6e 67 20 73 79 73      	imull	$0x73797320, 0x67(%bp), %ebp # imm = 0x73797320
+  10133a: 74 65                        	je	0x1013a1 <.rodata.str1.4+0x169>
+  10133c: 6d                           	insl	%dx, %es:(%edi)
+  10133d: 20 69 6e                     	andb	%ch, 0x6e(%ecx)
+  101340: 69 74 69 61 6c 69 7a 65      	imull	$0x657a696c, 0x61(%ecx,%ebp,2), %esi # imm = 0x657A696C
+  101348: 64 00 00                     	addb	%al, %fs:(%eax)
+  10134b: 00 49 6e                     	addb	%cl, 0x6e(%ecx)
+  10134e: 69 74 69 61 6c 69 7a 69      	imull	$0x697a696c, 0x61(%ecx,%ebp,2), %esi # imm = 0x697A696C
+  101356: 6e                           	outsb	(%esi), %dx
+  101357: 67 20 47 6c                  	andb	%al, 0x6c(%bx)
+  10135b: 6f                           	outsl	(%esi), %dx
+  10135c: 62 61 6c                     	bound	%esp, 0x6c(%ecx)
+  10135f: 20 44 65 73                  	andb	%al, 0x73(%ebp,%eiz,2)
+  101363: 63 72 69                     	arpl	%si, 0x69(%edx)
+  101366: 70 74                        	jo	0x1013dc <.rodata.str1.4+0x1a4>
+  101368: 6f                           	outsl	(%esi), %dx
+  101369: 72 20                        	jb	0x10138b <.rodata.str1.4+0x153>
+  10136b: 54                           	pushl	%esp
+  10136c: 61                           	popal
+  10136d: 62 6c 65 2e                  	bound	%ebp, 0x2e(%ebp,%eiz,2)
+  101371: 2e 2e 00 53 65               	addb	%dl, %cs:0x65(%ebx)
+  101376: 74 20                        	je	0x101398 <.rodata.str1.4+0x160>
+  101378: 65 6e                        	outsb	%gs:(%esi), %dx
+  10137a: 74 72                        	je	0x1013ee <.rodata.str1.4+0x1b6>
+  10137c: 79 20                        	jns	0x10139e <.rodata.str1.4+0x166>
+  10137e: 25 64 3a 20 62               	andl	$0x62203a64, %eax       # imm = 0x62203A64
+  101383: 61                           	popal
+  101384: 73 65                        	jae	0x1013eb <.rodata.str1.4+0x1b3>
+  101386: 3d 30 78 25 78               	cmpl	$0x78257830, %eax       # imm = 0x78257830
+  10138b: 2c 20                        	subb	$0x20, %al
+  10138d: 6c                           	insb	%dx, %es:(%edi)
+  10138e: 69 6d 69 74 3d 30 78         	imull	$0x78303d74, 0x69(%ebp), %ebp # imm = 0x78303D74
+  101395: 25 78 2c 20 61               	andl	$0x61202c78, %eax       # imm = 0x61202C78
+  10139a: 63 63 65                     	arpl	%sp, 0x65(%ebx)
+  10139d: 73 73                        	jae	0x101412 <.rodata.str1.4+0x1da>
+  10139f: 3d 30 78 25 78               	cmpl	$0x78257830, %eax       # imm = 0x78257830
+  1013a4: 2c 20                        	subb	$0x20, %al
+  1013a6: 67 72 61                     	addr16		jb	0x10140a <.rodata.str1.4+0x1d2>
+  1013a9: 6e                           	outsb	(%esi), %dx
+  1013aa: 3d 30 78 25 78               	cmpl	$0x78257830, %eax       # imm = 0x78257830
+  1013af: 00 45 6e                     	addb	%al, 0x6e(%ebp)
+  1013b2: 74 72                        	je	0x101426 <.rodata.str1.4+0x1ee>
+  1013b4: 79 20                        	jns	0x1013d6 <.rodata.str1.4+0x19e>
+  1013b6: 31 3a                        	xorl	%edi, (%edx)
+  1013b8: 20 4b 65                     	andb	%cl, 0x65(%ebx)
+  1013bb: 72 6e                        	jb	0x10142b <.rodata.str1.4+0x1f3>
+  1013bd: 65 6c                        	insb	%dx, %es:(%edi)
+  1013bf: 20 63 6f                     	andb	%ah, 0x6f(%ebx)
+  1013c2: 64 65 20 73 65               	andb	%dh, %gs:0x65(%ebx)
+  1013c7: 67 6d                        	insl	%dx, %es:(%di)
+  1013c9: 65 6e                        	outsb	%gs:(%esi), %dx
+  1013cb: 74 20                        	je	0x1013ed <.rodata.str1.4+0x1b5>
+  1013cd: 28 30                        	subb	%dh, (%eax)
+  1013cf: 78 30                        	js	0x101401 <.rodata.str1.4+0x1c9>
+  1013d1: 38 29                        	cmpb	%ch, (%ecx)
+  1013d3: 00 45 6e                     	addb	%al, 0x6e(%ebp)
+  1013d6: 74 72                        	je	0x10144a <.rodata.str1.4+0x212>
+  1013d8: 79 20                        	jns	0x1013fa <.rodata.str1.4+0x1c2>
+  1013da: 32 3a                        	xorb	(%edx), %bh
+  1013dc: 20 4b 65                     	andb	%cl, 0x65(%ebx)
+  1013df: 72 6e                        	jb	0x10144f <.rodata.str1.4+0x217>
+  1013e1: 65 6c                        	insb	%dx, %es:(%edi)
+  1013e3: 20 64 61 74                  	andb	%ah, 0x74(%ecx,%eiz,2)
+  1013e7: 61                           	popal
+  1013e8: 20 73 65                     	andb	%dh, 0x65(%ebx)
+  1013eb: 67 6d                        	insl	%dx, %es:(%di)
+  1013ed: 65 6e                        	outsb	%gs:(%esi), %dx
+  1013ef: 74 20                        	je	0x101411 <.rodata.str1.4+0x1d9>
+  1013f1: 28 30                        	subb	%dh, (%eax)
+  1013f3: 78 31                        	js	0x101426 <.rodata.str1.4+0x1ee>
+  1013f5: 30 29                        	xorb	%ch, (%ecx)
+  1013f7: 00 45 6e                     	addb	%al, 0x6e(%ebp)
+  1013fa: 74 72                        	je	0x10146e <.rodata.str1.4+0x236>
+  1013fc: 79 20                        	jns	0x10141e <.rodata.str1.4+0x1e6>
+  1013fe: 33 3a                        	xorl	(%edx), %edi
+  101400: 20 55 73                     	andb	%dl, 0x73(%ebp)
+  101403: 65 72 20                     	jb	0x101426 <.rodata.str1.4+0x1ee>
+  101406: 63 6f 64                     	arpl	%bp, 0x64(%edi)
+  101409: 65 20 73 65                  	andb	%dh, %gs:0x65(%ebx)
+  10140d: 67 6d                        	insl	%dx, %es:(%di)
+  10140f: 65 6e                        	outsb	%gs:(%esi), %dx
+  101411: 74 20                        	je	0x101433 <.rodata.str1.4+0x1fb>
+  101413: 28 30                        	subb	%dh, (%eax)
+  101415: 78 31                        	js	0x101448 <.rodata.str1.4+0x210>
+  101417: 38 29                        	cmpb	%ch, (%ecx)
+  101419: 00 00                        	addb	%al, (%eax)
+  10141b: 00 45 6e                     	addb	%al, 0x6e(%ebp)
+  10141e: 74 72                        	je	0x101492 <.rodata.str1.4+0x25a>
+  101420: 79 20                        	jns	0x101442 <.rodata.str1.4+0x20a>
+  101422: 34 3a                        	xorb	$0x3a, %al
+  101424: 20 55 73                     	andb	%dl, 0x73(%ebp)
+  101427: 65 72 20                     	jb	0x10144a <.rodata.str1.4+0x212>
+  10142a: 64 61                        	popal
+  10142c: 74 61                        	je	0x10148f <.rodata.str1.4+0x257>
+  10142e: 20 73 65                     	andb	%dh, 0x65(%ebx)
+  101431: 67 6d                        	insl	%dx, %es:(%di)
+  101433: 65 6e                        	outsb	%gs:(%esi), %dx
+  101435: 74 20                        	je	0x101457 <.rodata.str1.4+0x21f>
+  101437: 28 30                        	subb	%dh, (%eax)
+  101439: 78 32                        	js	0x10146d <.rodata.str1.4+0x235>
+  10143b: 30 29                        	xorb	%ch, (%ecx)
+  10143d: 00 00                        	addb	%al, (%eax)
+  10143f: 00 47 44                     	addb	%al, 0x44(%edi)
+  101442: 54                           	pushl	%esp
+  101443: 20 6c 6f 61                  	andb	%ch, 0x61(%edi,%ebp,2)
+  101447: 64 65 64 20 73 75            	andb	%dh, %fs:0x75(%ebx)
+  10144d: 63 63 65                     	arpl	%sp, 0x65(%ebx)
+  101450: 73 73                        	jae	0x1014c5 <.rodata.str1.4+0x28d>
+  101452: 66 75 6c                     	jne	0x1014c1 <.rodata.str1.4+0x289>
+  101455: 6c                           	insb	%dx, %es:(%edi)
+  101456: 79 21                        	jns	0x101479 <.rodata.str1.4+0x241>
+  101458: 20 4b 65                     	andb	%cl, 0x65(%ebx)
+  10145b: 72 6e                        	jb	0x1014cb <.rodata.str1.4+0x293>
+  10145d: 65 6c                        	insb	%dx, %es:(%edi)
+  10145f: 20 6e 6f                     	andb	%ch, 0x6f(%esi)
+  101462: 77 20                        	ja	0x101484 <.rodata.str1.4+0x24c>
+  101464: 75 73                        	jne	0x1014d9 <.rodata.str1.4+0x2a1>
+  101466: 69 6e 67 20 63 75 73         	imull	$0x73756320, 0x67(%esi), %ebp # imm = 0x73756320
+  10146d: 74 6f                        	je	0x1014de <.rodata.str1.4+0x2a6>
+  10146f: 6d                           	insl	%dx, %es:(%edi)
+  101470: 20 73 65                     	andb	%dh, 0x65(%ebx)
+  101473: 67 6d                        	insl	%dx, %es:(%di)
+  101475: 65 6e                        	outsb	%gs:(%esi), %dx
+  101477: 74 73                        	je	0x1014ec <.rodata.str1.4+0x2b4>
+  101479: 2e 00                        	<unknown>
+
+Disassembly of section .bss:
+
+00102000 <stack_bottom>:
+...
+
+00106000 <terminal_buffer>:
+...
+
+00106004 <terminal_color>:
+...
+
+00106008 <terminal_column>:
+...
+
+0010600c <terminal_row>:
+...
+
+00106010 <min_log_level>:
+...
+
+00106020 <gdt_ptr>:
+...
+
+00106040 <gdt_entries>:
+...
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+       0: 47                           	incl	%edi
+       1: 43                           	incl	%ebx
+       2: 43                           	incl	%ebx
+       3: 3a 20                        	cmpb	(%eax), %ah
+       5: 28 47 4e                     	subb	%al, 0x4e(%edi)
+       8: 55                           	pushl	%ebp
+       9: 29 20                        	subl	%esp, (%eax)
+       b: 31 35 2e 32 2e 30            	xorl	%esi, 0x302e322e
+      11: 00                           	<unknown>
+
+Disassembly of section .symtab:
+
+00000000 <.symtab>:
+		...
+      10: 01 00                        	addl	%eax, (%eax)
+		...
+      1a: 00 00                        	addb	%al, (%eax)
+      1c: 04 00                        	addb	$0x0, %al
+      1e: f1                           	<unknown>
+      1f: ff 08                        	decl	(%eax)
+      21: 00 00                        	addb	%al, (%eax)
+      23: 00 01                        	addb	%al, (%ecx)
+		...
+      2d: 00 f1                        	addb	%dh, %cl
+      2f: ff 0e                        	decl	(%esi)
+      31: 00 00                        	addb	%al, (%eax)
+      33: 00 02                        	addb	%al, (%edx)
+		...
+      3d: 00 f1                        	addb	%dh, %cl
+      3f: ff 16                        	calll	*(%esi)
+      41: 00 00                        	addb	%al, (%eax)
+      43: 00 03                        	addb	%al, (%ebx)
+		...
+      4d: 00 f1                        	addb	%dh, %cl
+      4f: ff 1c 00                     	lcalll	*(%eax,%eax)
+      52: 00 00                        	addb	%al, (%eax)
+      54: 02 b0 ad 1b 00 00            	addb	0x1bad(%eax), %dh
+      5a: 00 00                        	addb	%al, (%eax)
+      5c: 00 00                        	addb	%al, (%eax)
+      5e: f1                           	<unknown>
+      5f: ff 22                        	jmpl	*(%edx)
+      61: 00 00                        	addb	%al, (%eax)
+      63: 00 fb                        	addb	%bh, %bl
+      65: 4f                           	decl	%edi
+      66: 52                           	pushl	%edx
+      67: e4 00                        	inb	$0x0, %al
+      69: 00 00                        	addb	%al, (%eax)
+      6b: 00 00                        	addb	%al, (%eax)
+      6d: 00 f1                        	addb	%dh, %cl
+      6f: ff 2b                        	ljmpl	*(%ebx)
+      71: 00 00                        	addb	%al, (%eax)
+      73: 00 00                        	addb	%al, (%eax)
+      75: 20 10                        	andb	%dl, (%eax)
+      77: 00 00                        	addb	%al, (%eax)
+      79: 00 00                        	addb	%al, (%eax)
+      7b: 00 00                        	addb	%al, (%eax)
+      7d: 00 05 00 38 00 00            	addb	%al, 0x3800
+      83: 00 00                        	addb	%al, (%eax)
+      85: 60                           	pushal
+      86: 10 00                        	adcb	%al, (%eax)
+      88: 00 00                        	addb	%al, (%eax)
+      8a: 00 00                        	addb	%al, (%eax)
+      8c: 00 00                        	addb	%al, (%eax)
+      8e: 05 00 42 00 00               	addl	$0x4200, %eax           # imm = 0x4200
+		...
+      9b: 00 04 00                     	addb	%al, (%eax,%eax)
+      9e: f1                           	<unknown>
+      9f: ff 4c 00 00                  	decl	(%eax,%eax)
+      a3: 00 28                        	addb	%ch, (%eax)
+      a5: 00 10                        	addb	%dl, (%eax)
+      a7: 00 00                        	addb	%al, (%eax)
+      a9: 00 00                        	addb	%al, (%eax)
+      ab: 00 00                        	addb	%al, (%eax)
+      ad: 00 01                        	addb	%al, (%ecx)
+      af: 00 5c 00 00                  	addb	%bl, (%eax,%eax)
+		...
+      bb: 00 04 00                     	addb	%al, (%eax,%eax)
+      be: f1                           	<unknown>
+      bf: ff 65 00                     	jmpl	*(%ebp)
+		...
+      ca: 00 00                        	addb	%al, (%eax)
+      cc: 04 00                        	addb	$0x0, %al
+      ce: f1                           	<unknown>
+      cf: ff 6c 00 00                  	ljmpl	*(%eax,%eax)
+      d3: 00 10                        	addb	%dl, (%eax)
+      d5: 60                           	pushal
+      d6: 10 00                        	adcb	%al, (%eax)
+      d8: 04 00                        	addb	$0x0, %al
+      da: 00 00                        	addb	%al, (%eax)
+      dc: 01 00                        	addl	%eax, (%eax)
+      de: 05 00 7a 00 00               	addl	$0x7a00, %eax           # imm = 0x7A00
+      e3: 00 00                        	addb	%al, (%eax)
+      e5: 10 10                        	adcb	%dl, (%eax)
+      e7: 00 05 00 00 00 01            	addb	%al, 0x1000000
+      ed: 00 02                        	addb	%al, (%edx)
+      ef: 00 8b 00 00 00 08            	addb	%cl, 0x8000000(%ebx)
+      f5: 10 10                        	adcb	%dl, (%eax)
+      f7: 00 14 00                     	addb	%dl, (%eax,%eax)
+      fa: 00 00                        	addb	%al, (%eax)
+      fc: 01 00                        	addl	%eax, (%eax)
+      fe: 02 00                        	addb	(%eax), %al
+     100: 9b                           	wait
+		...
+     109: 00 00                        	addb	%al, (%eax)
+     10b: 00 04 00                     	addb	%al, (%eax,%eax)
+     10e: f1                           	<unknown>
+     10f: ff a1 00 00 00 40            	jmpl	*0x40000000(%ecx)
+     115: 60                           	pushal
+     116: 10 00                        	adcb	%al, (%eax)
+     118: 28 00                        	subb	%al, (%eax)
+     11a: 00 00                        	addb	%al, (%eax)
+     11c: 01 00                        	addl	%eax, (%eax)
+     11e: 05 00 ad 00 00               	addl	$0xad00, %eax           # imm = 0xAD00
+     123: 00 20                        	addb	%ah, (%eax)
+     125: 60                           	pushal
+     126: 10 00                        	adcb	%al, (%eax)
+     128: 06                           	pushl	%es
+     129: 00 00                        	addb	%al, (%eax)
+     12b: 00 01                        	addb	%al, (%ecx)
+     12d: 00 05 00 b5 00 00            	addb	%al, 0xb500
+     133: 00 e0                        	addb	%ah, %al
+     135: 05 10 00 ba 01               	addl	$0x1ba0010, %eax        # imm = 0x1BA0010
+     13a: 00 00                        	addb	%al, (%eax)
+     13c: 12 00                        	adcb	(%eax), %al
+     13e: 01 00                        	addl	%eax, (%eax)
+     140: be 00 00 00 00               	movl	$0x0, %esi
+     145: 09 10                        	orl	%edx, (%eax)
+     147: 00 2b                        	addb	%ch, (%ebx)
+     149: 00 00                        	addb	%al, (%eax)
+     14b: 00 12                        	addb	%dl, (%edx)
+     14d: 00 01                        	addb	%al, (%ecx)
+     14f: 00 cd                        	addb	%cl, %ch
+     151: 00 00                        	addb	%al, (%eax)
+     153: 00 04 60                     	addb	%al, (%eax,%eiz,2)
+     156: 10 00                        	adcb	%al, (%eax)
+     158: 01 00                        	addl	%eax, (%eax)
+     15a: 00 00                        	addb	%al, (%eax)
+     15c: 11 00                        	adcl	%eax, (%eax)
+     15e: 05 00 dc 00 00               	addl	$0xdc00, %eax           # imm = 0xDC00
+     163: 00 10                        	addb	%dl, (%eax)
+     165: 05 10 00 41 00               	addl	$0x410010, %eax         # imm = 0x410010
+     16a: 00 00                        	addb	%al, (%eax)
+     16c: 12 00                        	adcb	(%eax), %al
+     16e: 01 00                        	addl	%eax, (%eax)
+     170: e4 00                        	inb	$0x0, %al
+     172: 00 00                        	addb	%al, (%eax)
+     174: c0 04 10 00                  	rolb	$0x0, (%eax,%edx)
+     178: 1b 00                        	sbbl	(%eax), %eax
+     17a: 00 00                        	addb	%al, (%eax)
+     17c: 12 00                        	adcb	(%eax), %al
+     17e: 01 00                        	addl	%eax, (%eax)
+     180: ec                           	inb	%dx, %al
+     181: 00 00                        	addb	%al, (%eax)
+     183: 00 c0                        	addb	%al, %al
+     185: 02 10                        	addb	(%eax), %dl
+     187: 00 3d 00 00 00 12            	addb	%bh, 0x12000000
+     18d: 00 01                        	addb	%al, (%ecx)
+     18f: 00 01                        	addb	%al, (%ecx)
+     191: 01 00                        	addl	%eax, (%eax)
+     193: 00 50 09                     	addb	%dl, 0x9(%eax)
+     196: 10 00                        	adcb	%al, (%eax)
+     198: 01 02                        	addl	%eax, (%edx)
+     19a: 00 00                        	addb	%al, (%eax)
+     19c: 12 00                        	adcb	(%eax), %al
+     19e: 01 00                        	addl	%eax, (%eax)
+     1a0: 0a 01                        	orb	(%ecx), %al
+     1a2: 00 00                        	addb	%al, (%eax)
+     1a4: 60                           	pushal
+     1a5: 0b 10                        	orl	(%eax), %edx
+     1a7: 00 b4 00 00 00 12 00         	addb	%dh, 0x120000(%eax,%eax)
+     1ae: 01 00                        	addl	%eax, (%eax)
+     1b0: 17                           	popl	%ss
+     1b1: 01 00                        	addl	%eax, (%eax)
+     1b3: 00 f0                        	addb	%dh, %al
+     1b5: 01 10                        	addl	%edx, (%eax)
+     1b7: 00 81 00 00 00 12            	addb	%al, 0x12000000(%ecx)
+     1bd: 00 01                        	addb	%al, (%ecx)
+     1bf: 00 28                        	addb	%ch, (%eax)
+     1c1: 01 00                        	addl	%eax, (%eax)
+     1c3: 00 00                        	addb	%al, (%eax)
+     1c5: 03 10                        	addl	(%eax), %edx
+     1c7: 00 43 01                     	addb	%al, 0x1(%ebx)
+     1ca: 00 00                        	addb	%al, (%eax)
+     1cc: 12 00                        	adcb	(%eax), %al
+     1ce: 01 00                        	addl	%eax, (%eax)
+     1d0: 34 01                        	xorb	$0x1, %al
+     1d2: 00 00                        	addb	%al, (%eax)
+     1d4: 10 01                        	adcb	%al, (%ecx)
+     1d6: 10 00                        	adcb	%al, (%eax)
+     1d8: 0d 00 00 00 12               	orl	$0x12000000, %eax       # imm = 0x12000000
+     1dd: 00 01                        	addb	%al, (%ecx)
+     1df: 00 46 01                     	addb	%al, 0x1(%esi)
+     1e2: 00 00                        	addb	%al, (%eax)
+     1e4: 90                           	nop
+     1e5: 00 10                        	addb	%dl, (%eax)
+     1e7: 00 77 00                     	addb	%dh, (%edi)
+     1ea: 00 00                        	addb	%al, (%eax)
+     1ec: 12 00                        	adcb	(%eax), %al
+     1ee: 01 00                        	addl	%eax, (%eax)
+     1f0: 5a                           	popl	%edx
+     1f1: 01 00                        	addl	%eax, (%eax)
+     1f3: 00 80 02 10 00 3d            	addb	%al, 0x3d001002(%eax)
+     1f9: 00 00                        	addb	%al, (%eax)
+     1fb: 00 12                        	addb	%dl, (%edx)
+     1fd: 00 01                        	addb	%al, (%ecx)
+     1ff: 00 69 01                     	addb	%ch, 0x1(%ecx)
+     202: 00 00                        	addb	%al, (%eax)
+     204: 0c 00                        	orb	$0x0, %al
+     206: 10 00                        	adcb	%al, (%eax)
+     208: 0e                           	pushl	%cs
+     209: 00 00                        	addb	%al, (%eax)
+     20b: 00 12                        	addb	%dl, (%edx)
+     20d: 00 01                        	addb	%al, (%ecx)
+     20f: 00 70 01                     	addb	%dh, 0x1(%eax)
+     212: 00 00                        	addb	%al, (%eax)
+     214: 60                           	pushal
+     215: 05 10 00 7b 00               	addl	$0x7b0010, %eax         # imm = 0x7B0010
+     21a: 00 00                        	addb	%al, (%eax)
+     21c: 12 00                        	adcb	(%eax), %al
+     21e: 01 00                        	addl	%eax, (%eax)
+     220: 76 01                        	jbe	0x223 <.symtab+0x223>
+     222: 00 00                        	addb	%al, (%eax)
+     224: e0 04                        	loopne	0x22a <.symtab+0x22a>
+     226: 10 00                        	adcb	%al, (%eax)
+     228: 24 00                        	andb	$0x0, %al
+     22a: 00 00                        	addb	%al, (%eax)
+     22c: 12 00                        	adcb	(%eax), %al
+     22e: 01 00                        	addl	%eax, (%eax)
+     230: 7e 01                        	jle	0x233 <.symtab+0x233>
+     232: 00 00                        	addb	%al, (%eax)
+     234: 08 60 10                     	orb	%ah, 0x10(%eax)
+     237: 00 04 00                     	addb	%al, (%eax,%eax)
+     23a: 00 00                        	addb	%al, (%eax)
+     23c: 11 00                        	adcl	%eax, (%eax)
+     23e: 05 00 8e 01 00               	addl	$0x18e00, %eax          # imm = 0x18E00
+     243: 00 50 00                     	addb	%dl, (%eax)
+     246: 10 00                        	adcb	%al, (%eax)
+     248: 12 00                        	adcb	(%eax), %al
+     24a: 00 00                        	addb	%al, (%eax)
+     24c: 12 00                        	adcb	(%eax), %al
+     24e: 01 00                        	addl	%eax, (%eax)
+     250: 98                           	cwtl
+     251: 01 00                        	addl	%eax, (%eax)
+     253: 00 50 01                     	addb	%dl, 0x1(%eax)
+     256: 10 00                        	adcb	%al, (%eax)
+     258: 92                           	xchgl	%edx, %eax
+     259: 00 00                        	addb	%al, (%eax)
+     25b: 00 12                        	addb	%dl, (%edx)
+     25d: 00 01                        	addb	%al, (%ecx)
+     25f: 00 a8 01 00 00 e0            	addb	%ch, -0x1fffffff(%eax)
+     265: 08 10                        	orb	%dl, (%eax)
+     267: 00 1c 00                     	addb	%bl, (%eax,%eax)
+     26a: 00 00                        	addb	%al, (%eax)
+     26c: 12 00                        	adcb	(%eax), %al
+     26e: 01 00                        	addl	%eax, (%eax)
+     270: b2 01                        	movb	$0x1, %dl
+     272: 00 00                        	addb	%al, (%eax)
+     274: 00 60 10                     	addb	%ah, 0x10(%eax)
+     277: 00 04 00                     	addb	%al, (%eax,%eax)
+     27a: 00 00                        	addb	%al, (%eax)
+     27c: 11 00                        	adcl	%eax, (%eax)
+     27e: 05 00 c2 01 00               	addl	$0x1c200, %eax          # imm = 0x1C200
+     283: 00 30                        	addb	%dh, (%eax)
+     285: 09 10                        	orl	%edx, (%eax)
+     287: 00 17                        	addb	%dl, (%edi)
+     289: 00 00                        	addb	%al, (%eax)
+     28b: 00 12                        	addb	%dl, (%edx)
+     28d: 00 01                        	addb	%al, (%ecx)
+     28f: 00 ca                        	addb	%cl, %dl
+     291: 01 00                        	addl	%eax, (%eax)
+     293: 00 1a                        	addb	%bl, (%edx)
+     295: 00 10                        	addb	%dl, (%eax)
+     297: 00 1d 00 00 00 12            	addb	%bl, 0x12000000
+     29d: 00 01                        	addb	%al, (%ecx)
+     29f: 00 e5                        	addb	%ah, %ch
+     2a1: 00 00                        	addb	%al, (%eax)
+     2a3: 00 70 00                     	addb	%dh, (%eax)
+     2a6: 10 00                        	adcb	%al, (%eax)
+     2a8: 1b 00                        	sbbl	(%eax), %eax
+     2aa: 00 00                        	addb	%al, (%eax)
+     2ac: 12 00                        	adcb	(%eax), %al
+     2ae: 01 00                        	addl	%eax, (%eax)
+     2b0: d4 01                        	aam	$0x1
+     2b2: 00 00                        	addb	%al, (%eax)
+     2b4: 0c 60                        	orb	$0x60, %al
+     2b6: 10 00                        	adcb	%al, (%eax)
+     2b8: 04 00                        	addb	$0x0, %al
+     2ba: 00 00                        	addb	%al, (%eax)
+     2bc: 11 00                        	adcl	%eax, (%eax)
+     2be: 05 00 e1 01 00               	addl	$0x1e100, %eax          # imm = 0x1E100
+     2c3: 00 20                        	addb	%ah, (%eax)
+     2c5: 01 10                        	addl	%edx, (%eax)
+     2c7: 00 28                        	addb	%ch, (%eax)
+     2c9: 00 00                        	addb	%al, (%eax)
+     2cb: 00 12                        	addb	%dl, (%edx)
+     2cd: 00 01                        	addb	%al, (%ecx)
+     2cf: 00 f5                        	addb	%dh, %ch
+     2d1: 01 00                        	addl	%eax, (%eax)
+     2d3: 00 60 04                     	addb	%ah, 0x4(%eax)
+     2d6: 10 00                        	adcb	%al, (%eax)
+     2d8: 53                           	pushl	%ebx
+     2d9: 00 00                        	addb	%al, (%eax)
+     2db: 00 12                        	addb	%dl, (%edx)
+     2dd: 00 01                        	addb	%al, (%ecx)
+     2df: 00 02                        	addb	%al, (%edx)
+     2e1: 02 00                        	addb	(%eax), %al
+     2e3: 00 a0 07 10 00 3c            	addb	%ah, 0x3c001007(%eax)
+     2e9: 01 00                        	addl	%eax, (%eax)
+     2eb: 00 12                        	addb	%dl, (%edx)
+     2ed: 00 01                        	addb	%al, (%ecx)
+     2ef: 00 07                        	addb	%al, (%edi)
+     2f1: 02 00                        	addb	(%eax), %al
+     2f3: 00 40 00                     	addb	%al, (%eax)
+     2f6: 10 00                        	adcb	%al, (%eax)
+     2f8: 0f 00 00                     	sldtw	(%eax)
+     2fb: 00 12                        	addb	%dl, (%edx)
+     2fd: 00 01                        	addb	%al, (%ecx)
+     2ff: 00                           	<unknown>
+
+Disassembly of section .strtab:
+
+00000000 <.strtab>:
+       0: 00 62 6f                     	addb	%ah, 0x6f(%edx)
+       3: 6f                           	outsl	(%esi), %dx
+       4: 74 2e                        	je	0x34 <.symtab+0x34>
+       6: 6f                           	outsl	(%esi), %dx
+       7: 00 41 4c                     	addb	%al, 0x4c(%ecx)
+       a: 49                           	decl	%ecx
+       b: 47                           	incl	%edi
+       c: 4e                           	decl	%esi
+       d: 00 4d 45                     	addb	%cl, 0x45(%ebp)
+      10: 4d                           	decl	%ebp
+      11: 49                           	decl	%ecx
+      12: 4e                           	decl	%esi
+      13: 46                           	incl	%esi
+      14: 4f                           	decl	%edi
+      15: 00 46 4c                     	addb	%al, 0x4c(%esi)
+      18: 41                           	incl	%ecx
+      19: 47                           	incl	%edi
+      1a: 53                           	pushl	%ebx
+      1b: 00 4d 41                     	addb	%cl, 0x41(%ebp)
+      1e: 47                           	incl	%edi
+      1f: 49                           	decl	%ecx
+      20: 43                           	incl	%ebx
+      21: 00 43 48                     	addb	%al, 0x48(%ebx)
+      24: 45                           	incl	%ebp
+      25: 43                           	incl	%ebx
+      26: 4b                           	decl	%ebx
+      27: 53                           	pushl	%ebx
+      28: 55                           	pushl	%ebp
+      29: 4d                           	decl	%ebp
+      2a: 00 73 74                     	addb	%dh, 0x74(%ebx)
+      2d: 61                           	popal
+      2e: 63 6b 5f                     	arpl	%bp, 0x5f(%ebx)
+      31: 62 6f 74                     	bound	%ebp, 0x74(%edi)
+      34: 74 6f                        	je	0xa5 <.symtab+0xa5>
+      36: 6d                           	insl	%dx, %es:(%edi)
+      37: 00 73 74                     	addb	%dh, 0x74(%ebx)
+      3a: 61                           	popal
+      3b: 63 6b 5f                     	arpl	%bp, 0x5f(%ebx)
+      3e: 74 6f                        	je	0xaf <.symtab+0xaf>
+      40: 70 00                        	jo	0x42 <.symtab+0x42>
+      42: 67 64 74 5f                  	addr16		je	0xa5 <.symtab+0xa5>
+      46: 61                           	popal
+      47: 73 6d                        	jae	0xb6 <.symtab+0xb6>
+      49: 2e 6f                        	outsl	%cs:(%esi), %dx
+      4b: 00 72 65                     	addb	%dh, 0x65(%edx)
+      4e: 6c                           	insb	%dx, %es:(%edi)
+      4f: 6f                           	outsl	(%esi), %dx
+      50: 61                           	popal
+      51: 64 5f                        	popl	%edi
+      53: 73 65                        	jae	0xba <.symtab+0xba>
+      55: 67 6d                        	insl	%dx, %es:(%di)
+      57: 65 6e                        	outsb	%gs:(%esi), %dx
+      59: 74 73                        	je	0xce <.symtab+0xce>
+      5b: 00 6b 65                     	addb	%ch, 0x65(%ebx)
+      5e: 72 6e                        	jb	0xce <.symtab+0xce>
+      60: 65 6c                        	insb	%dx, %es:(%edi)
+      62: 2e 63 00                     	arpl	%ax, %cs:(%eax)
+      65: 6b 6c 6f 67 2e               	imull	$0x2e, 0x67(%edi,%ebp,2), %ebp
+      6a: 63 00                        	arpl	%ax, (%eax)
+      6c: 6d                           	insl	%dx, %es:(%edi)
+      6d: 69 6e 5f 6c 6f 67 5f         	imull	$0x5f676f6c, 0x5f(%esi), %ebp # imm = 0x5F676F6C
+      74: 6c                           	insb	%dx, %es:(%edi)
+      75: 65 76 65                     	jbe	0xdd <.symtab+0xdd>
+      78: 6c                           	insb	%dx, %es:(%edi)
+      79: 00 6c 6f 67                  	addb	%ch, 0x67(%edi,%ebp,2)
+      7d: 5f                           	popl	%edi
+      7e: 6c                           	insb	%dx, %es:(%edi)
+      7f: 65 76 65                     	jbe	0xe7 <.symtab+0xe7>
+      82: 6c                           	insb	%dx, %es:(%edi)
+      83: 5f                           	popl	%edi
+      84: 63 6f 6c                     	arpl	%bp, 0x6c(%edi)
+      87: 6f                           	outsl	(%esi), %dx
+      88: 72 73                        	jb	0xfd <.symtab+0xfd>
+      8a: 00 6c 6f 67                  	addb	%ch, 0x67(%edi,%ebp,2)
+      8e: 5f                           	popl	%edi
+      8f: 6c                           	insb	%dx, %es:(%edi)
+      90: 65 76 65                     	jbe	0xf8 <.symtab+0xf8>
+      93: 6c                           	insb	%dx, %es:(%edi)
+      94: 5f                           	popl	%edi
+      95: 6e                           	outsb	(%esi), %dx
+      96: 61                           	popal
+      97: 6d                           	insl	%dx, %es:(%edi)
+      98: 65 73 00                     	jae	0x9b <.symtab+0x9b>
+      9b: 67 64 74 2e                  	addr16		je	0xcd <.symtab+0xcd>
+      9f: 63 00                        	arpl	%ax, (%eax)
+      a1: 67 64 74 5f                  	addr16		je	0x104 <.symtab+0x104>
+      a5: 65 6e                        	outsb	%gs:(%esi), %dx
+      a7: 74 72                        	je	0x11b <.symtab+0x11b>
+      a9: 69 65 73 00 67 64 74         	imull	$0x74646700, 0x73(%ebp), %esp # imm = 0x74646700
+      b0: 5f                           	popl	%edi
+      b1: 70 74                        	jo	0x127 <.symtab+0x127>
+      b3: 72 00                        	jb	0xb5 <.symtab+0xb5>
+      b5: 6b 76 70 72                  	imull	$0x72, 0x70(%esi), %esi
+      b9: 69 6e 74 66 00 6b 6c         	imull	$0x6c6b0066, 0x74(%esi), %ebp # imm = 0x6C6B0066
+      c0: 6f                           	outsl	(%esi), %dx
+      c1: 67 5f                        	addr16		popl	%edi
+      c3: 73 65                        	jae	0x12a <.symtab+0x12a>
+      c5: 74 5f                        	je	0x126 <.symtab+0x126>
+      c7: 6c                           	insb	%dx, %es:(%edi)
+      c8: 65 76 65                     	jbe	0x130 <.symtab+0x130>
+      cb: 6c                           	insb	%dx, %es:(%edi)
+      cc: 00 74 65 72                  	addb	%dh, 0x72(%ebp,%eiz,2)
+      d0: 6d                           	insl	%dx, %es:(%edi)
+      d1: 69 6e 61 6c 5f 63 6f         	imull	$0x6f635f6c, 0x61(%esi), %ebp # imm = 0x6F635F6C
+      d8: 6c                           	insb	%dx, %es:(%edi)
+      d9: 6f                           	outsl	(%esi), %dx
+      da: 72 00                        	jb	0xdc <.symtab+0xdc>
+      dc: 6b 6d 65 6d                  	imull	$0x6d, 0x65(%ebp), %ebp
+      e0: 73 65                        	jae	0x147 <.symtab+0x147>
+      e2: 74 00                        	je	0xe4 <.symtab+0xe4>
+      e4: 6b 73 74 72                  	imull	$0x72, 0x74(%ebx), %esi
+      e8: 6c                           	insb	%dx, %es:(%edi)
+      e9: 65 6e                        	outsb	%gs:(%esi), %dx
+      eb: 00 74 65 72                  	addb	%dh, 0x72(%ebp,%eiz,2)
+      ef: 6d                           	insl	%dx, %es:(%edi)
+      f0: 69 6e 61 6c 5f 77 72         	imull	$0x72775f6c, 0x61(%esi), %ebp # imm = 0x72775F6C
+      f7: 69 74 65 73 74 72 69 6e      	imull	$0x6e697274, 0x73(%ebp,%eiz,2), %esi # imm = 0x6E697274
+      ff: 67 00 67 64                  	addb	%ah, 0x64(%bx)
+     103: 74 5f                        	je	0x164 <.symtab+0x164>
+     105: 69 6e 69 74 00 67 64         	imull	$0x64670074, 0x69(%esi), %ebp # imm = 0x64670074
+     10c: 74 5f                        	je	0x16d <.symtab+0x16d>
+     10e: 73 65                        	jae	0x175 <.symtab+0x175>
+     110: 74 5f                        	je	0x171 <.symtab+0x171>
+     112: 67 61                        	addr16		popal
+     114: 74 65                        	je	0x17b <.symtab+0x17b>
+     116: 00 74 65 72                  	addb	%dh, 0x72(%ebp,%eiz,2)
+     11a: 6d                           	insl	%dx, %es:(%edi)
+     11b: 69 6e 61 6c 5f 70 75         	imull	$0x75705f6c, 0x61(%esi), %ebp # imm = 0x75705F6C
+     122: 74 63                        	je	0x187 <.symtab+0x187>
+     124: 68 61 72 00 6b               	pushl	$0x6b007261             # imm = 0x6B007261
+     129: 65 72 6e                     	jb	0x19a <.symtab+0x19a>
+     12c: 65 6c                        	insb	%dx, %es:(%edi)
+     12e: 5f                           	popl	%edi
+     12f: 6d                           	insl	%dx, %es:(%edi)
+     130: 61                           	popal
+     131: 69 6e 00 74 65 72 6d         	imull	$0x6d726574, (%esi), %ebp # imm = 0x6D726574
+     138: 69 6e 61 6c 5f 73 65         	imull	$0x65735f6c, 0x61(%esi), %ebp # imm = 0x65735F6C
+     13f: 74 63                        	je	0x1a4 <.symtab+0x1a4>
+     141: 6f                           	outsl	(%esi), %dx
+     142: 6c                           	insb	%dx, %es:(%edi)
+     143: 6f                           	outsl	(%esi), %dx
+     144: 72 00                        	jb	0x146 <.symtab+0x146>
+     146: 74 65                        	je	0x1ad <.symtab+0x1ad>
+     148: 72 6d                        	jb	0x1b7 <.symtab+0x1b7>
+     14a: 69 6e 61 6c 5f 69 6e         	imull	$0x6e695f6c, 0x61(%esi), %ebp # imm = 0x6E695F6C
+     151: 69 74 69 61 6c 69 7a 65      	imull	$0x657a696c, 0x61(%ecx,%ebp,2), %esi # imm = 0x657A696C
+     159: 00 74 65 72                  	addb	%dh, 0x72(%ebp,%eiz,2)
+     15d: 6d                           	insl	%dx, %es:(%edi)
+     15e: 69 6e 61 6c 5f 77 72         	imull	$0x72775f6c, 0x61(%esi), %ebp # imm = 0x72775F6C
+     165: 69 74 65 00 5f 73 74 61      	imull	$0x6174735f, (%ebp,%eiz,2), %esi # imm = 0x6174735F
+     16d: 72 74                        	jb	0x1e3 <.symtab+0x1e3>
+     16f: 00 6b 69                     	addb	%ch, 0x69(%ebx)
+     172: 74 6f                        	je	0x1e3 <.symtab+0x1e3>
+     174: 61                           	popal
+     175: 00 6b 73                     	addb	%ch, 0x73(%ebx)
+     178: 74 72                        	je	0x1ec <.symtab+0x1ec>
+     17a: 63 70 79                     	arpl	%si, 0x79(%eax)
+     17d: 00 74 65 72                  	addb	%dh, 0x72(%ebp,%eiz,2)
+     181: 6d                           	insl	%dx, %es:(%edi)
+     182: 69 6e 61 6c 5f 63 6f         	imull	$0x6f635f6c, 0x61(%esi), %ebp # imm = 0x6F635F6C
+     189: 6c                           	insb	%dx, %es:(%edi)
+     18a: 75 6d                        	jne	0x1f9 <.symtab+0x1f9>
+     18c: 6e                           	outsb	(%esi), %dx
+     18d: 00 76 67                     	addb	%dh, 0x67(%esi)
+     190: 61                           	popal
+     191: 5f                           	popl	%edi
+     192: 65 6e                        	outsb	%gs:(%esi), %dx
+     194: 74 72                        	je	0x208 <.symtab+0x208>
+     196: 79 00                        	jns	0x198 <.symtab+0x198>
+     198: 74 65                        	je	0x1ff <.symtab+0x1ff>
+     19a: 72 6d                        	jb	0x209 <.symtab+0x209>
+     19c: 69 6e 61 6c 5f 73 63         	imull	$0x63735f6c, 0x61(%esi), %ebp # imm = 0x63735F6C
+     1a3: 72 6f                        	jb	0x214 <.symtab+0x214>
+     1a5: 6c                           	insb	%dx, %es:(%edi)
+     1a6: 6c                           	insb	%dx, %es:(%edi)
+     1a7: 00 6b 6c                     	addb	%ch, 0x6c(%ebx)
+     1aa: 6f                           	outsl	(%esi), %dx
+     1ab: 67 5f                        	addr16		popl	%edi
+     1ad: 69 6e 69 74 00 74 65         	imull	$0x65740074, 0x69(%esi), %ebp # imm = 0x65740074
+     1b4: 72 6d                        	jb	0x223 <.symtab+0x223>
+     1b6: 69 6e 61 6c 5f 62 75         	imull	$0x75625f6c, 0x61(%esi), %ebp # imm = 0x75625F6C
+     1bd: 66 66 65 72 00               	jb	0x1c2 <.symtab+0x1c2>
+     1c2: 6b 70 72 69                  	imull	$0x69, 0x72(%eax), %esi
+     1c6: 6e                           	outsb	(%esi), %dx
+     1c7: 74 66                        	je	0x22f <.symtab+0x22f>
+     1c9: 00 67 64                     	addb	%ah, 0x64(%edi)
+     1cc: 74 5f                        	je	0x22d <.symtab+0x22d>
+     1ce: 66 6c                        	insb	%dx, %es:(%edi)
+     1d0: 75 73                        	jne	0x245 <.symtab+0x245>
+     1d2: 68 00 74 65 72               	pushl	$0x72657400             # imm = 0x72657400
+     1d7: 6d                           	insl	%dx, %es:(%edi)
+     1d8: 69 6e 61 6c 5f 72 6f         	imull	$0x6f725f6c, 0x61(%esi), %ebp # imm = 0x6F725F6C
+     1df: 77 00                        	ja	0x1e1 <.symtab+0x1e1>
+     1e1: 74 65                        	je	0x248 <.symtab+0x248>
+     1e3: 72 6d                        	jb	0x252 <.symtab+0x252>
+     1e5: 69 6e 61 6c 5f 70 75         	imull	$0x75705f6c, 0x61(%esi), %ebp # imm = 0x75705F6C
+     1ec: 74 65                        	je	0x253 <.symtab+0x253>
+     1ee: 6e                           	outsb	(%esi), %dx
+     1ef: 74 72                        	je	0x263 <.symtab+0x263>
+     1f1: 79 61                        	jns	0x254 <.symtab+0x254>
+     1f3: 74 00                        	je	0x1f5 <.symtab+0x1f5>
+     1f5: 6b 65 72 6e                  	imull	$0x6e, 0x72(%ebp), %esp
+     1f9: 65 6c                        	insb	%dx, %es:(%edi)
+     1fb: 5f                           	popl	%edi
+     1fc: 70 61                        	jo	0x25f <.symtab+0x25f>
+     1fe: 6e                           	outsb	(%esi), %dx
+     1ff: 69 63 00 6b 6c 6f 67         	imull	$0x676f6c6b, (%ebx), %esp # imm = 0x676F6C6B
+     206: 00 76 67                     	addb	%dh, 0x67(%esi)
+     209: 61                           	popal
+     20a: 5f                           	popl	%edi
+     20b: 65 6e                        	outsb	%gs:(%esi), %dx
+     20d: 74 72                        	je	0x281 <.symtab+0x281>
+     20f: 79 5f                        	jns	0x270 <.symtab+0x270>
+     211: 63 6f 6c                     	arpl	%bp, 0x6c(%edi)
+     214: 6f                           	outsl	(%esi), %dx
+     215: 72 00                        	jb	0x217 <.symtab+0x217>
+
+Disassembly of section .shstrtab:
+
+00000000 <.shstrtab>:
+       0: 00 2e                        	addb	%ch, (%esi)
+       2: 73 79                        	jae	0x7d <.symtab+0x7d>
+       4: 6d                           	insl	%dx, %es:(%edi)
+       5: 74 61                        	je	0x68 <.symtab+0x68>
+       7: 62 00                        	bound	%eax, (%eax)
+       9: 2e 73 74                     	jae	0x80 <.symtab+0x80>
+       c: 72 74                        	jb	0x82 <.symtab+0x82>
+       e: 61                           	popal
+       f: 62 00                        	bound	%eax, (%eax)
+      11: 2e 73 68                     	jae	0x7c <.symtab+0x7c>
+      14: 73 74                        	jae	0x8a <.symtab+0x8a>
+      16: 72 74                        	jb	0x8c <.symtab+0x8c>
+      18: 61                           	popal
+      19: 62 00                        	bound	%eax, (%eax)
+      1b: 2e 74 65                     	je	0x83 <.symtab+0x83>
+      1e: 78 74                        	js	0x94 <.symtab+0x94>
+      20: 00 2e                        	addb	%ch, (%esi)
+      22: 72 6f                        	jb	0x93 <.symtab+0x93>
+      24: 64 61                        	popal
+      26: 74 61                        	je	0x89 <.symtab+0x89>
+      28: 00 2e                        	addb	%ch, (%esi)
+      2a: 72 6f                        	jb	0x9b <.symtab+0x9b>
+      2c: 64 61                        	popal
+      2e: 74 61                        	je	0x91 <.symtab+0x91>
+      30: 2e 73 74                     	jae	0xa7 <.symtab+0xa7>
+      33: 72 31                        	jb	0x66 <.symtab+0x66>
+      35: 2e 31 00                     	xorl	%eax, %cs:(%eax)
+      38: 2e 72 6f                     	jb	0xaa <.symtab+0xaa>
+      3b: 64 61                        	popal
+      3d: 74 61                        	je	0xa0 <.symtab+0xa0>
+      3f: 2e 73 74                     	jae	0xb6 <.symtab+0xb6>
+      42: 72 31                        	jb	0x75 <.symtab+0x75>
+      44: 2e 34 00                     	xorb	$0x0, %al
+      47: 2e 62 73 73                  	bound	%esi, %cs:0x73(%ebx)
+      4b: 00 2e                        	addb	%ch, (%esi)
+      4d: 63 6f 6d                     	arpl	%bp, 0x6d(%edi)
+      50: 6d                           	insl	%dx, %es:(%edi)
+      51: 65 6e                        	outsb	%gs:(%esi), %dx
+      53: 74 00                        	je	0x55 <.symtab+0x55>

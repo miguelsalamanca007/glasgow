@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include "vga.h"
 #include "klog.h"
+#include "gdt.h"
+#include "idt.h"
+#include "pic.h"
 
 uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
     return fg | bg << 4;
@@ -97,6 +100,9 @@ void terminal_writestring(const char* data) {
 void kernel_main(void) {
     terminal_initialize();
     klog_init();
+    gdt_init();
+    idt_init();
+    pic_init();
 
     KINFO("BOOT", "Glasgow kernel starting up...");
     KINFO("VGA", "Text mode initialized successfully");
@@ -112,18 +118,8 @@ void kernel_main(void) {
     terminal_setcolor(vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
     
     KINFO("BOOT", "Kernel initialization complete");
-    KINFO("SYS", "Entering main kernel loop...");
-    
-    // testing setting log level
-    kprintf("\nChanging log level to WARN (hiding DEBUG/INFO):\n");
-    klog_set_level(LOG_WARN);
-    
-    KDEBUG("TEST", "You shouldn't see this debug message");
-    KINFO("TEST", "You shouldn't see this info message");
-    KWARN("TEST", "You should see this warning");
-    
-    while (1) {
-        // Kernel runs forever to avoid return
-        __asm__ volatile ("hlt"); // Sleep until interrupt
-    }
+            
+    KINFO("CPU", "Enabling interrupts...");
+    __asm__ volatile ("sti");
+    KINFO("CPU", "Interrupts enabled - kernel ready!");
 }

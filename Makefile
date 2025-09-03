@@ -19,8 +19,8 @@ CFLAGS = -std=gnu99 -ffreestanding -O2 -Wall -Wextra -Wno-unused-parameter
 LDFLAGS = -ffreestanding -O2 -nostdlib
 
 # Source files
-ASM_SOURCES = boot.s
-C_SOURCES = kernel.c klog.c
+ASM_SOURCES = boot.s gdt_asm.s interrupts.s
+C_SOURCES = kernel.c klog.c gdt.c idt.c exceptions.c pic.c
 SOURCES = $(ASM_SOURCES) $(C_SOURCES)
 
 # Object files
